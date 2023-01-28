@@ -2,6 +2,7 @@ import csv
 import io
 import json
 from datetime import datetime, timedelta, date, time
+from xml.etree import ElementTree
 from zoneinfo import ZoneInfo
 
 from flask import make_response, abort, current_app
@@ -23,6 +24,8 @@ def export_timetable(format, lessons):
         return _to_list(layout)
     if format == "ics":
         return _to_ics(layout)
+    if format == "xml":
+        return _to_xml(layout)
     abort(404)
 
 
@@ -101,4 +104,40 @@ def _to_ics(layout: Layout):
 
     response = make_response(cal.to_ical())
     response.mimetype = "text/calendar"
+    return response
+
+
+def _to_xml(layout: Layout):
+    root = ElementTree.Element("timetable", version="1.0")
+
+    for lesson in layout.get_lessons():
+        lesson_elem = ElementTree.SubElement(root, "lesson", id=str(lesson.id_))
+        elem = ElementTree.SubElement(lesson_elem, "type")
+        elem.text = lesson.type.name
+
+        elem = ElementTree.SubElement(lesson_elem, "room")
+        elem.text = lesson.room.name
+
+        elem = ElementTree.SubElement(lesson_elem, "subject", shortcode=lesson.subject.short_code)
+        elem.text = lesson.subject.name
+
+        elem = ElementTree.SubElement(lesson_elem, "day")
+        elem.text = lesson.day_abbreviated
+
+        elem = ElementTree.SubElement(lesson_elem, "start")
+        elem.text = lesson.start_formatted
+
+        elem = ElementTree.SubElement(lesson_elem, "end")
+        elem.text = lesson.end_formatted
+
+        for teacher in lesson.teachers:
+            elem = ElementTree.SubElement(lesson_elem, "teacher")
+            elem.text = teacher.short_name
+
+        if lesson.note:
+            elem = ElementTree.SubElement(lesson_elem, "note")
+            elem.text = lesson.note
+
+    response = make_response(ElementTree.tostring(root))
+    response.mimetype = "application/xml"
     return response
