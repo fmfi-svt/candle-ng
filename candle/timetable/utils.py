@@ -31,7 +31,7 @@ def get_unique_name(name) -> str:
 
 def duplicate_timetable(old_timetable: SchoolTimetable):
     """Create a new timetable as a duplicate of old one and return its id."""
-    new_name = get_unique_name(old_timetable.timetable_name)
+    new_name = get_unique_name(old_timetable.timetable_short_name)
     new_t = UserTimetable(name=new_name, user_id=current_user.id)
     db.session.add(new_t)
     for lesson in old_timetable.lessons:

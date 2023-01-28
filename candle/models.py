@@ -27,6 +27,10 @@ class SchoolTimetable(db.Model):
         raise NotImplementedError()
 
     @property
+    def timetable_short_name(self) -> str:
+        return self.timetable_name
+
+    @property
     def lessons(self):
         raise NotImplementedError()
 
@@ -97,6 +101,10 @@ class Teacher(SchoolTimetable):
     def timetable_name(self) -> str:
         return self.fullname
 
+    @property
+    def timetable_short_name(self) -> str:
+        return self.short_name
+
 
 student_group_lessons = db.Table('student_group_lessons',
                                  db.Column('student_group_id', db.Integer, db.ForeignKey('student_group.id')),
@@ -111,6 +119,10 @@ class StudentGroup(SchoolTimetable):
     @property
     def timetable_name(self) -> str:
         return f"Rozvh krúžku {self.name}"
+
+    @property
+    def timetable_short_name(self) -> str:
+        return self.name
 
 
 class Lesson(db.Model):
@@ -185,7 +197,7 @@ class LessonType(db.Model):
     lessons = db.relationship('Lesson', backref='type', lazy=True)
 
     def __repr__(self):
-        return f"{self.name}"
+        return self.name
 
 
 class Subject(SchoolTimetable):
@@ -212,7 +224,7 @@ class Subject(SchoolTimetable):
 
     @property
     def timetable_name(self) -> str:
-        return f"{self.name}"
+        return self.name
 
 
 class RoomType(db.Model):
