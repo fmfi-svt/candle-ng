@@ -8,3 +8,4 @@ Flask-WTF
 Flask-Login
 python-dotenv
 pymysql
+cryptography
