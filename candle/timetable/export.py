@@ -26,6 +26,8 @@ def export_timetable(format, lessons):
         return _to_ics(layout)
     if format == "xml":
         return _to_xml(layout)
+    if format == "txt":
+        return _to_txt(layout)
     abort(404)
 
 
@@ -65,6 +67,20 @@ def _to_list(layout: Layout):
         subjects.add(lesson.subject.short_code)
 
     response = make_response("\n".join(subjects))
+    response.mimetype = "text/plain"
+    return response
+
+
+def _to_txt(layout: Layout):
+    rows = []
+
+    for lesson in layout.get_lessons():
+        row = [lesson.day_abbreviated, f"{lesson.start_formatted} - {lesson.end_formatted}",
+               f"({lesson.rowspan} v.hod.)", lesson.room.name, lesson.type.name, lesson.subject.short_code,
+               lesson.subject.name, lesson.get_note(), lesson.get_teachers_formatted()]
+        rows.append("\t".join(row))
+
+    response = make_response("\n".join(rows))
     response.mimetype = "text/plain"
     return response
 
