@@ -14,7 +14,7 @@ room = Blueprint('room',
                  template_folder='templates', url_prefix="/miestnosti")
 
 
-@room.route('/miestnosti')
+@room.route('')
 def list_rooms():
     """Show all rooms."""
     rooms_list = Room.query.order_by(Room.name).all()
