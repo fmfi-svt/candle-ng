@@ -120,7 +120,7 @@ def getUniqueName(name) -> str:
 @login_required
 @my_timetable.route("/moj-rozvrh/<id_>/delete", methods=['DELETE'])
 def delete_timetable(id_):
-    ut = UserTimetable.query.get_or_404(id_)
+    ut = get_timetable(id_)
     db.session.delete(ut)
     db.session.commit()
 
@@ -142,7 +142,7 @@ def delete_timetable(id_):
 def rename_timetable(id_):
     new_name = request.form['new_name']
     new_name = getUniqueName(new_name)
-    ut = UserTimetable.query.get_or_404(id_)
+    ut = get_timetable(id_)
     ut.name = new_name
     db.session.commit()
 
@@ -162,7 +162,7 @@ def rename_timetable(id_):
 @my_timetable.route('/moj-rozvrh/<timetable_id>/lesson/<lesson_id>/<action>', methods=['POST'])
 def add_or_remove_lesson(timetable_id, lesson_id, action):
     """Add or remove lesson to/from the timetable."""
-    ut = UserTimetable.query.get_or_404(timetable_id)
+    ut = get_timetable(timetable_id)
     lesson = Lesson.query.get_or_404(lesson_id)
 
     if action == 'add':
@@ -189,7 +189,7 @@ def add_or_remove_lesson(timetable_id, lesson_id, action):
 @my_timetable.route('/moj-rozvrh/<timetable_id>/subject/<subject_id>/<action>', methods=['POST'])
 def add_or_remove_subject(timetable_id, subject_id, action):
     """Add/Remove subject (with all lessons) to/from user's timetable. Return timetable templates (layout & list)."""
-    ut = UserTimetable.query.get_or_404(timetable_id)
+    ut = get_timetable(timetable_id)
     subject = Subject.query.get_or_404(subject_id)
 
     if action == 'add':
