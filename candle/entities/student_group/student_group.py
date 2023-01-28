@@ -5,21 +5,16 @@ Author: Daniel Grohol, FMFI UK
 
 from typing import Dict
 from flask import render_template, Blueprint
-from flask_login import current_user
 
-from candle.models import StudentGroup, Lesson
-from candle.timetable.export import export_timetable_as
-from candle.timetable.layout import Layout
-from candle.timetable.render import render_timetable
-from candle.timetable.timetable import get_lessons_as_csv_response
+from candle.models import StudentGroup
+from candle.timetable.blueprints.readonly import register_timetable_routes
 
 student_group = Blueprint('student_group',
                           __name__,
-                          template_folder='templates')
+                          template_folder='templates', url_prefix='/kruzky')
 
 
-
-@student_group.route('/kruzky')
+@student_group.route('')
 def list_student_groups():
     """Show all student groups."""
     groups_list = StudentGroup.query.order_by(StudentGroup.name).all()
@@ -29,15 +24,7 @@ def list_student_groups():
                            title=title, web_header=title)
 
 
-@student_group.route('/kruzky/<group_url_id>')
-def show_timetable(group_url_id: str):
-    """Show a timetable for a student-group."""
-
-    student_group = get_group(group_url_id)
-    return render_timetable("Rozvrh krúžku " + student_group.name, student_group.lessons, editable=False)
-
-
-def get_group(group_url_id):
+def get_group(group_url_id: str) -> StudentGroup:
     if group_url_id.isnumeric():
         student_group = StudentGroup.query.filter_by(id_=group_url_id).first_or_404()
     else:
@@ -45,10 +32,7 @@ def get_group(group_url_id):
     return student_group
 
 
-@student_group.route('/kruzky/<group_url_id>.<format>')
-def export_timetable(group_url_id, format):
-    """Return timetable as a CSV. Data are separated by a semicolon (;)."""
-    return export_timetable_as(format, get_group(group_url_id).lessons)
+register_timetable_routes(student_group, get_group)
 
 
 def get_student_groups_sorted_by_first_letter(student_groups) -> Dict:

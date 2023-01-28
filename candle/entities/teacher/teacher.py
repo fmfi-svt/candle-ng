@@ -4,24 +4,20 @@ Author: Daniel Grohol, FMFI UK
 '''
 
 from flask import Blueprint, render_template
-from flask_login import current_user
 
 from typing import Dict
-from candle.models import Lesson, Teacher
-from candle.entities.helpers import  string_starts_with_ch
+from candle.models import Teacher
+from candle.entities.helpers import string_starts_with_ch
 import unidecode
 
-from candle.timetable.export import export_timetable_as
-from candle.timetable.layout import Layout
-from candle.timetable.render import render_timetable
-from candle.timetable.timetable import get_lessons_as_csv_response
+from candle.timetable.blueprints.readonly import register_timetable_routes
 
 teacher = Blueprint('teacher',
                     __name__,
-                    template_folder='templates')
+                    template_folder='templates', url_prefix='/ucitelia')
 
 
-@teacher.route('/ucitelia')
+@teacher.route('')
 def list_teachers():
     """Show all teachers in the list."""
     teachers_list = Teacher.query.order_by(Teacher.family_name).all()
@@ -31,18 +27,11 @@ def list_teachers():
                            web_header=title)
 
 
-@teacher.route('/ucitelia/<teacher_slug>')
-def show_timetable(teacher_slug):
-    """Show a timetable for a teacher."""
-    teacher = Teacher.query.filter(Teacher.slug==teacher_slug).first_or_404()
-    return render_timetable(teacher.fullname, teacher.lessons, editable=False)
+def get_teacher(slug: str) -> Teacher:
+    return Teacher.query.filter((Teacher.slug == slug) | (Teacher.login == slug)).first_or_404()
 
 
-@teacher.route('/ucitelia/<teacher_slug>.<format>')
-def export_timetable(teacher_slug, format):
-    """Exports teachers timetable"""
-    teacher = Teacher.query.filter(Teacher.slug==teacher_slug).first_or_404()
-    return export_timetable_as(format, teacher.lessons)
+register_timetable_routes(teacher, get_teacher)
 
 
 def get_teachers_sorted_by_family_name(teachers) -> Dict:
@@ -53,17 +42,17 @@ def get_teachers_sorted_by_family_name(teachers) -> Dict:
     and values are objects of model Teacher
     """
     d = {}
-    others = []    # special category
+    others = []  # special category
     for teacher in teachers:
         if teacher.family_name is None or teacher.family_name == '':
             continue
 
         first_letter = (teacher.family_name[0])
-        if first_letter.isalpha() == False:    # some names starts with dot '.', or forwardslash '/', (etc.)
+        if first_letter.isalpha() == False:  # some names starts with dot '.', or forwardslash '/', (etc.)
             others.append(teacher)
             continue
-        first_letter = unidecode.unidecode(first_letter)    # get rid of diacritics  (Č change to C)
-        if string_starts_with_ch(teacher.family_name):     # family_name that starts on a "CH" is a special category
+        first_letter = unidecode.unidecode(first_letter)  # get rid of diacritics  (Č change to C)
+        if string_starts_with_ch(teacher.family_name):  # family_name that starts on a "CH" is a special category
             first_letter = 'Ch'
         if first_letter not in d:
             d[first_letter] = []

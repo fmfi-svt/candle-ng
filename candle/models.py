@@ -11,6 +11,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from candle import db, login_manager
 from candle.timetable.layout import Layout
 
+
 class SchoolTimetable(db.Model):
     """Abstract class for Room, Student-Group and Teacher."""
     __abstract__ = True
@@ -20,6 +21,14 @@ class SchoolTimetable(db.Model):
         if '.' in self.name or '_' in self.name:     # TODO add more problematic characters if necessary
             return self.id_
         return self.name
+
+    @property
+    def timetable_name(self) -> str:
+        raise NotImplementedError()
+
+    @property
+    def lessons(self):
+        raise NotImplementedError()
 
 
 class Room(SchoolTimetable):
@@ -43,6 +52,10 @@ class Room(SchoolTimetable):
 
     def __repr__(self):
         return "<Room %r>" % self.name
+
+    @property
+    def timetable_name(self) -> str:
+        return self.name
 
 
 teacher_lessons = db.Table('teacher_lessons',
@@ -80,6 +93,10 @@ class Teacher(SchoolTimetable):
     def fullname_reversed(self):
         return self.family_name + " " + self.given_name
 
+    @property
+    def timetable_name(self) -> str:
+        return self.fullname
+
 
 student_group_lessons = db.Table('student_group_lessons',
                                  db.Column('student_group_id', db.Integer, db.ForeignKey('student_group.id')),
@@ -91,6 +108,9 @@ class StudentGroup(SchoolTimetable):
     name = db.Column(db.String(30), nullable=False)
     lessons = db.relationship('Lesson', secondary=student_group_lessons, lazy='dynamic')
 
+    @property
+    def timetable_name(self) -> str:
+        return f"Rozvh krúžku {self.name}"
 
 
 class Lesson(db.Model):
