@@ -8,6 +8,7 @@ from flask import render_template, Blueprint
 from flask_login import current_user
 
 from candle.models import StudentGroup, Lesson
+from candle.timetable.export import export_timetable_as
 from candle.timetable.layout import Layout
 from candle.timetable.render import render_timetable
 from candle.timetable.timetable import get_lessons_as_csv_response
@@ -44,15 +45,10 @@ def get_group(group_url_id):
     return student_group
 
 
-@student_group.route('/kruzky/<group_url_id>/export')
-def export_timetable(group_url_id):
+@student_group.route('/kruzky/<group_url_id>.<format>')
+def export_timetable(group_url_id, format):
     """Return timetable as a CSV. Data are separated by a semicolon (;)."""
-    student_group = get_group(group_url_id)
-    lessons = student_group.lessons.order_by(Lesson.day, Lesson.start).all()
-    timetable_layout = Layout(lessons)
-    if timetable_layout is None:
-        raise Exception("Timetable cannot be None")
-    return get_lessons_as_csv_response(timetable_layout, filename=student_group.name)
+    return export_timetable_as(format, get_group(group_url_id).lessons)
 
 
 def get_student_groups_sorted_by_first_letter(student_groups) -> Dict:

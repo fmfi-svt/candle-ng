@@ -12,7 +12,7 @@ from candle.models import Subject, Lesson
 from candle.timetable.layout import Layout
 
 
-def export_timetable(format, lessons):
+def export_timetable_as(format, lessons):
     lessons = lessons.join(Subject).order_by(Lesson.day, Lesson.start, Subject.name).all()
     layout = Layout(lessons)
 
