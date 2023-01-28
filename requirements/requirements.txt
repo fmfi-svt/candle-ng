@@ -190,6 +190,10 @@ greenlet==2.0.1 \
     --hash=sha256:f6327b6907b4cb72f650a5b7b1be23a2aab395017aa6f1adb13069d66360eb3f \
     --hash=sha256:fb412b7db83fe56847df9c47b6fe3f13911b06339c2aa02dcc09dce8bbf582cd
     # via sqlalchemy
+icalendar==5.0.4 \
+    --hash=sha256:3e759f9c3875e037c90e1c2f4aff0f6123f4435af6152b80a70b8d6a5529cb1b \
+    --hash=sha256:f0aa86d6f5bc110ed3b91e96c48c70351d7a09fbed25366f673dc0b799c83975
+    # via -r requirements.in
 itsdangerous==2.1.2 \
     --hash=sha256:2c2349112351b88699d8d4b6b075022c0808887cb7ad10069318a8b0bc88db44 \
     --hash=sha256:5dbbc68b317e5e42f327f9021763545dc3fc3bfe22e6deb96aaf1fc38874156a
@@ -264,10 +268,22 @@ pymysql==1.0.2 \
     --hash=sha256:41fc3a0c5013d5f039639442321185532e3e2c8924687abe6537de157d403641 \
     --hash=sha256:816927a350f38d56072aeca5dfb10221fe1dc653745853d30a216637f5d7ad36
     # via -r requirements.in
+python-dateutil==2.8.2 \
+    --hash=sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86 \
+    --hash=sha256:961d03dc3453ebbc59dbdea9e4e11c5651520a876d0f4db161e8674aae935da9
+    # via icalendar
 python-dotenv==0.21.1 \
     --hash=sha256:1c93de8f636cde3ce377292818d0e440b6e45a82f215c3744979151fa8151c49 \
     --hash=sha256:41e12e0318bebc859fcc4d97d4db8d20ad21721a6aa5047dd59f090391cb549a
     # via -r requirements.in
+pytz==2022.7.1 \
+    --hash=sha256:01a0681c4b9684a28304615eba55d1ab31ae00bf68ec157ec3708a8182dbbcd0 \
+    --hash=sha256:78f4f37d8198e0627c5f1143240bb0206b8691d8d7ac6d78fee88b78733f8c4a
+    # via icalendar
+six==1.16.0 \
+    --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926 \
+    --hash=sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254
+    # via python-dateutil
 sqlalchemy==1.4.46 \
     --hash=sha256:07e48cbcdda6b8bc7a59d6728bd3f5f574ffe03f2c9fb384239f3789c2d95c2e \
     --hash=sha256:18cafdb27834fa03569d29f571df7115812a0e59fd6a3a03ccb0d33678ec8420 \

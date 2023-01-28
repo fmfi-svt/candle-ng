@@ -11,6 +11,7 @@ from candle.models import Lesson, Teacher
 from candle.entities.helpers import  string_starts_with_ch
 import unidecode
 
+from candle.timetable.export import export_timetable_as
 from candle.timetable.layout import Layout
 from candle.timetable.render import render_timetable
 from candle.timetable.timetable import get_lessons_as_csv_response
@@ -36,16 +37,13 @@ def show_timetable(teacher_slug):
     teacher = Teacher.query.filter(Teacher.slug==teacher_slug).first_or_404()
     return render_timetable(teacher.fullname, teacher.lessons, editable=False)
 
-@teacher.route('/ucitelia/<teacher_slug>/export')
-def export_timetable(teacher_slug):
-    """Return timetable as a CSV. Data are separated by a semicolon (;)."""
+
+@teacher.route('/ucitelia/<teacher_slug>.<format>')
+def export_timetable(teacher_slug, format):
+    """Exports teachers timetable"""
     teacher = Teacher.query.filter(Teacher.slug==teacher_slug).first_or_404()
-    teacher_name = teacher.fullname
-    lessons = teacher.lessons.order_by(Lesson.day, Lesson.start).all()
-    timetable_layout = Layout(lessons)
-    if timetable_layout is None:
-        raise Exception("Timetable cannot be None")
-    return get_lessons_as_csv_response(timetable_layout, filename=teacher_name)
+    return export_timetable_as(format, teacher.lessons)
+
 
 def get_teachers_sorted_by_family_name(teachers) -> Dict:
     """Return a dictionary that contains teachers sorted by the first letter of the family_name.

@@ -10,3 +10,4 @@ Flask-Login
 python-dotenv
 pymysql
 cryptography
+icalendar

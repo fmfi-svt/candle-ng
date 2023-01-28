@@ -3,14 +3,14 @@ Project: Candle (New Generation): Candle rewrite from PHP to Python.
 Author: Daniel Grohol, FMFI UK
 '''
 
-from flask import Blueprint, request, url_for, jsonify, render_template
+from flask import Blueprint, request, url_for, jsonify, render_template, abort
 from flask_login import current_user, login_required
 import re
 from candle import db
 from candle.models import UserTimetable, Teacher, Room, StudentGroup, Lesson, Subject
+from candle.timetable.export import export_timetable_as
 from candle.timetable.layout import Layout, TooManyColumnsError
 from candle.timetable.render import render_timetable
-from candle.timetable.timetable import get_lessons_as_csv_response
 
 my_timetable = Blueprint('my_timetable',
                          __name__,
@@ -20,14 +20,12 @@ my_timetable = Blueprint('my_timetable',
 
 def get_timetable(id_):
     id_ = int(id_)
-    return current_user.timetables.filter(UserTimetable.id_ == id_).first()
+    return current_user.timetables.filter(UserTimetable.id_ == id_).first_or_404()
 
 @my_timetable.route('/moj-rozvrh/<id_>')
 @login_required
 def show_timetable(id_):
     ut = get_timetable(id_)
-    if ut is None:
-        return render_template('errors/404.html'), 404
     return render_timetable(ut.name, ut.lessons, selected_timetable_key=int(id_))
 
 
@@ -43,19 +41,11 @@ def new_timetable():
     return url_for("my_timetable.show_timetable", id_=ut.id_)
 
 
-@my_timetable.route('/moj-rozvrh/<id_>/export')
+@my_timetable.route('/moj-rozvrh/<id_>.<format>')
 @login_required
-def export_my_timetable(id_):
-    """Return CSV for user's timetable. Data are separated by a semicolon (;)."""
-    id_ = int(id_)
-    ut = UserTimetable.query.get_or_404(id_)
-    lessons = ut.lessons.order_by(Lesson.day, Lesson.start).all()
-    timetable_layout = Layout(lessons)
-    if timetable_layout is None:
-        raise Exception("Timetable cannot be None")
-    return get_lessons_as_csv_response(timetable_layout, filename=ut.name)
-
-
+def export_my_timetable(id_, format):
+    """Exports users timetable"""
+    return export_timetable_as(format, get_timetable(id_).lessons)
 
 
 @login_required

@@ -8,6 +8,7 @@ from flask_login import current_user
 from candle.models import Room, Lesson, Subject
 from typing import Dict
 
+from candle.timetable.export import export_timetable_as
 from candle.timetable.layout import Layout
 from candle.timetable.render import render_timetable
 from candle.timetable.timetable import get_lessons_as_csv_response
@@ -34,15 +35,10 @@ def show_timetable(room_url_id):
     return render_timetable(f"Rozvrh miestnosti {room.name}", room.lessons, editable=False)
 
 
-@room.route('/miestnosti/<room_url_id>/export')
-def export_timetable(room_url_id):
+@room.route('/miestnosti/<room_url_id>.<format>')
+def export_timetable(room_url_id, format):
     """Return timetable as a CSV. Data are separated by a semicolon (;)."""
-    room = get_room_by_id(room_url_id)
-    lessons = room.lessons.order_by(Lesson.day, Lesson.start).all()
-    timetable_layout = Layout(lessons)
-    if timetable_layout is None:
-        raise Exception("Timetable cannot be None")
-    return get_lessons_as_csv_response(timetable_layout, filename=room.name)
+    return export_timetable_as(format, get_room_by_id(room_url_id).lessons)
 
 
 def get_room_by_id(room_url_id):

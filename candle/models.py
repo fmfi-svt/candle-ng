@@ -140,6 +140,24 @@ class Lesson(db.Model):
     def get_note(self) -> str:
         return self.note if self.note else ""
 
+
+    def to_dict(self) -> dict:
+        """
+        Returns the Lesson as dict for JSON rendering.
+        """
+
+        return {
+            "id": self.id_,
+            "day": self.day_abbreviated,
+            "start": self.start_formatted,
+            "end": self.end_formatted,
+            "type": self.type.code,
+            "room": self.room.name,
+            "subject": self.subject.to_dict(),
+            "teachers": [t.short_name for t in self.teachers],
+            "note": self.get_note(),
+        }
+
 class LessonType(db.Model):
     id_ = db.Column('id', db.Integer, primary_key=True)
     name = db.Column(db.String(30), nullable=False)
@@ -162,6 +180,15 @@ class Subject(db.Model):
 
     def __repr__(self):
         return f"Subject(id:'{self.id_}', name:'{self.name}' )"
+
+    def to_dict(self) -> dict:
+        """
+        Returns the Subject as dict for JSON rendering.
+        """
+        return {
+            "name": self.name,
+            "shortcode": self.short_code,
+        }
 
 
 class RoomType(db.Model):

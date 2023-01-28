@@ -4,6 +4,8 @@ Author: Daniel Grohol, FMFI UK
 '''
 
 import os
+from datetime import date
+
 from dotenv import load_dotenv
 
 
@@ -33,6 +35,10 @@ class Config:
                             and store your SECRET_KEY there.""")
 
     # app.config['SQLALCHEMY_ECHO'] = True    # show queries, that runs "in background"
+    # TODO: real values
+    CANDLE_SEMESTER = "2022-2023-zima"
+    CANDLE_SEMESTER_START = date(2022, 1, 5)
+    CANDLE_SEMESTER_END = date(2022, 12, 31)
 
 
 class ProductionConfig(Config):
