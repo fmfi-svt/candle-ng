@@ -1,8 +1,11 @@
 import csv
 import io
 import json
+from datetime import datetime, timedelta, date, time
+from zoneinfo import ZoneInfo
 
-from flask import make_response, abort
+from flask import make_response, abort, current_app
+from icalendar import Calendar, Event
 
 from candle.models import Subject, Lesson
 from candle.timetable.layout import Layout
@@ -18,6 +21,8 @@ def export_timetable(format, lessons):
         return _to_json(layout)
     if format == "list":
         return _to_list(layout)
+    if format == "ics":
+        return _to_ics(layout)
     abort(404)
 
 
@@ -58,4 +63,42 @@ def _to_list(layout: Layout):
 
     response = make_response("\n".join(subjects))
     response.mimetype = "text/plain"
+    return response
+
+
+def _to_ics(layout: Layout):
+    cal = Calendar()
+    cal.add('prodid', '-//Candle-NG//NONSGML candle.fmph.uniba.sk//')
+    cal.add('version', '2.0')
+
+    tz = ZoneInfo("Europe/Bratislava")
+    semester_start: date = current_app.config["CANDLE_SEMESTER_START"]
+    semester_end: date = current_app.config["CANDLE_SEMESTER_END"]
+    semester = current_app.config["CANDLE_SEMESTER"]
+
+    for lesson in layout.get_lessons():
+        event = Event()
+        event.add("uid", f"{semester}-{lesson.id_}@candle.fmph.uniba.sk")
+
+        day = semester_start + timedelta(days=(lesson.day - semester_start.weekday()) % 7)
+        start = datetime.combine(day, time(lesson.start // 60, lesson.start % 60), tz)
+        end = datetime.combine(day, time(lesson.end // 60, lesson.end % 60), tz)
+
+        event.add("dtstamp", start)
+        event.add("dtstart", start)
+        event.add("dtend", end)
+        event.add("summary", lesson.subject.name)
+        event.add("location", lesson.room.name)
+
+        description = [lesson.type.name]
+        if lesson.note:
+            description.append(lesson.note)
+        description.extend(["", lesson.get_teachers_formatted()])
+        event.add("description", "\n".join(description))
+        event.add("rrule", {"freq": "weekly", "until": semester_end})
+
+        cal.add_component(event)
+
+    response = make_response(cal.to_ical())
+    response.mimetype = "text/calendar"
     return response
