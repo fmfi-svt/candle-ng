@@ -28,7 +28,7 @@ def show_timetable(id_):
     ut = get_timetable(id_)
     if ut is None:
         return render_template('errors/404.html'), 404
-    return render_timetable(ut.name, ut.lessons, selected_timetable_key=id_)
+    return render_timetable(ut.name, ut.lessons, selected_timetable_key=int(id_))
 
 
 @my_timetable.route('/moj-rozvrh', methods=['POST'])
