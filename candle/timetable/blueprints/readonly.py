@@ -1,8 +1,10 @@
 from typing import Callable
 
-from flask import Blueprint
+from flask import Blueprint, jsonify, url_for
+from flask_login import login_required
 
 from candle.models import SchoolTimetable
+from candle.timetable.utils import duplicate_timetable
 from candle.timetable.export import export_timetable_as
 from candle.timetable.render import render_timetable
 
@@ -19,3 +21,9 @@ def register_timetable_routes(bp: Blueprint, getter: Callable[[str], SchoolTimet
         """Exports a timetable."""
         obj = getter(slug)
         return export_timetable_as(format, obj.lessons)
+
+    @login_required
+    @bp.route("/<slug>/duplicate", methods=['POST'])
+    def duplicate(slug):
+        new_timetable_id = duplicate_timetable(getter(slug))
+        return jsonify({'next_url': url_for("my_timetable.show_timetable", id_=new_timetable_id)})
