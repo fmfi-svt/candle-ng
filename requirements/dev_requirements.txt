@@ -12,6 +12,12 @@ beautifulsoup4==4.11.1 \
     --hash=sha256:58d5c3d29f5a36ffeb94f02f0d786cd53014cf9b3b3951d42e0080d8a9498d30 \
     --hash=sha256:ad9aa55b65ef2808eb405f46cf74df7fcb7044d5cbc26487f96eb2ef2e436693
     # via -r dev_requirements.in
+blinker==1.5 \
+    --hash=sha256:1eb563df6fdbc39eeddc177d953203f99f097e9bf0e2b8f9f3cf18b6ca425e36 \
+    --hash=sha256:923e5e2f69c155f2cc42dafbbd70e16e3fde24d2d4aa2ab72fbe386238892462
+    # via
+    #   -r requirements.txt
+    #   flask-debugtoolbar
 cffi==1.15.1 \
     --hash=sha256:00a9ed42e88df81ffae7a8ab6d9356b371399b91dbdf0c3cb1e84c03a13aceb5 \
     --hash=sha256:03425bdae262c76aad70202debd780501fabeaca237cdfddc008987c0e0f59ef \
@@ -120,9 +126,14 @@ flask==2.2.2 \
     --hash=sha256:b9c46cc36662a7949f34b52d8ec7bb59c0d74ba08ba6cb9ce9adc1d8676d9526
     # via
     #   -r requirements.txt
+    #   flask-debugtoolbar
     #   flask-login
     #   flask-sqlalchemy
     #   flask-wtf
+flask-debugtoolbar==0.13.1 \
+    --hash=sha256:0c26aa013a9813b8886857bf0ec24d28ab494114a264baf06c951cadc4dd0dae \
+    --hash=sha256:491c737f321830c06a2835784acf1fc8488fd257a0ef318810b3b6bed5f600d5
+    # via -r requirements.txt
 flask-login==0.6.2 \
     --hash=sha256:1ef79843f5eddd0f143c2cd994c1b05ac83c0401dc6234c143495af9a939613f \
     --hash=sha256:c0a7baa9fdc448cdd3dd6f0939df72eec5177b2f7abe6cb82fc934d29caac9c3
@@ -209,6 +220,7 @@ itsdangerous==2.1.2 \
     # via
     #   -r requirements.txt
     #   flask
+    #   flask-debugtoolbar
     #   flask-wtf
 jinja2==3.1.2 \
     --hash=sha256:31351a702a408a9e7595a8fc6150fc3f43bb6bf7e319770cbc0db9df9437e852 \
@@ -361,6 +373,7 @@ werkzeug==2.2.2 \
     # via
     #   -r requirements.txt
     #   flask
+    #   flask-debugtoolbar
     #   flask-login
 wtforms==3.0.1 \
     --hash=sha256:6b351bbb12dd58af57ffef05bc78425d08d1914e0fd68ee14143b7ade023c5bc \

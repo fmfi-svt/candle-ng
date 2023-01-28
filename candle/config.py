@@ -16,7 +16,7 @@ load_dotenv(ENV_FILE_PATH)
 
 
 class Config:
-    DEBUG = False
+    DEBUG = os.environ.get("FLASK_DEBUG", False)
     TESTING = False
     CSRF_ENABLED = True
     SQLALCHEMY_TRACK_MODIFICATIONS = False

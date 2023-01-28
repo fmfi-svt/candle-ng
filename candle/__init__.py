@@ -4,6 +4,7 @@ Author: Daniel Grohol
 '''
 
 from flask import Flask
+from flask_debugtoolbar import DebugToolbarExtension
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_wtf.csrf import CSRFProtect
@@ -19,6 +20,7 @@ login_manager.login_view = 'auth.login'
 
 csrf = CSRFProtect()    # We need CSRF protection for our AJAX calls. More info: https://stackoverflow.com/questions/31888316/how-to-use-flask-wtforms-csrf-protection-with-ajax
 db = SQLAlchemy()
+debug_toolbar = DebugToolbarExtension()
 
 
 def create_app(config_class=Config):
@@ -67,6 +69,7 @@ def init_extensions(app):
     db.init_app(app)
     login_manager.init_app(app)
     csrf.init_app(app)
+    debug_toolbar.init_app(app)
 
     app.jinja_env.trim_blocks = True
     app.jinja_env.lstrip_blocks = True
