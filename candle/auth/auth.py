@@ -20,6 +20,8 @@ def require_remote_user(func):
             if request.environ.get('REMOTE_USER') is None:
                 flash('User not logged in', 'error')
                 return redirect(url_for('main.home'))
+        else:
+            request.environ.setdefault("REMOTE_USER", "svttest")
         return func(*args, **kwargs)
     return wrapper
 
@@ -29,13 +31,9 @@ def require_remote_user(func):
 def login():
     ais_login = request.environ.get('REMOTE_USER')
     user = User.query.filter_by(login=ais_login).first()
-    if user:
-        login_user(user, remember=True)
-        # flash('Prihlasovanie prebehlo uspesne.')
-
-    else:
+    if not user:
         # vytvori takeho uzivatela v DB:
-        user = User()
+        user = User(login=ais_login)
         db.session.add(user)
         db.session.commit()
         # flash('Prihlasenie bolo neuspesne.')
