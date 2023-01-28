@@ -9,6 +9,7 @@ from flask_login import current_user
 
 from candle.models import StudentGroup, Lesson
 from candle.timetable.layout import Layout
+from candle.timetable.render import render_timetable
 from candle.timetable.timetable import get_lessons_as_csv_response
 
 student_group = Blueprint('student_group',
@@ -32,19 +33,7 @@ def show_timetable(group_url_id: str):
     """Show a timetable for a student-group."""
 
     student_group = get_group(group_url_id)
-    web_header = "Rozvrh krúžku " + student_group.name
-    lessons = student_group.lessons.order_by(Lesson.day, Lesson.start).all()
-    t = Layout(lessons)
-
-    if current_user.is_authenticated:
-        my_timetables = current_user.timetables
-    else:
-        my_timetables = None
-    return render_template('timetable/timetable.html', title=student_group.name,
-                           student_group_name=student_group.name,
-                           web_header=web_header, timetable=t,
-                           my_timetables=my_timetables, show_welcome=False,
-                           editable=False)
+    return render_timetable("Rozvrh krúžku " + student_group.name, student_group.lessons, editable=False)
 
 
 def get_group(group_url_id):

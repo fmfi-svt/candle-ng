@@ -9,6 +9,7 @@ from candle.models import Room, Lesson, Subject
 from typing import Dict
 
 from candle.timetable.layout import Layout
+from candle.timetable.render import render_timetable
 from candle.timetable.timetable import get_lessons_as_csv_response
 
 room = Blueprint('room',
@@ -30,17 +31,7 @@ def list_rooms():
 def show_timetable(room_url_id):
     """Show a timetable for a room."""
     room = get_room_by_id(room_url_id)
-    web_header = "Rozvrh miestnosti " + room.name
-
-    lessons = room.lessons.join(Subject).order_by(Lesson.day, Lesson.start, Subject.name).all()
-    t = Layout(lessons)
-    if current_user.is_authenticated:
-        my_timetables = current_user.timetables
-    else:
-        my_timetables = None
-    return render_template('timetable/timetable.html', room_name=room.name, title=room.name,
-                           timetable=t, my_timetables=my_timetables, show_welcome=False,
-                           web_header=web_header, editable=False)
+    return render_timetable(f"Rozvrh miestnosti {room.name}", room.lessons, editable=False)
 
 
 @room.route('/miestnosti/<room_url_id>/export')

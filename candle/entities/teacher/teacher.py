@@ -12,6 +12,7 @@ from candle.entities.helpers import  string_starts_with_ch
 import unidecode
 
 from candle.timetable.layout import Layout
+from candle.timetable.render import render_timetable
 from candle.timetable.timetable import get_lessons_as_csv_response
 
 teacher = Blueprint('teacher',
@@ -33,18 +34,7 @@ def list_teachers():
 def show_timetable(teacher_slug):
     """Show a timetable for a teacher."""
     teacher = Teacher.query.filter(Teacher.slug==teacher_slug).first_or_404()
-    teacher_name = teacher.fullname
-    lessons = teacher.lessons.order_by(Lesson.day, Lesson.start).all()
-    t = Layout(lessons)
-    if current_user.is_authenticated:
-        my_timetables = current_user.timetables
-    else:
-        my_timetables = None
-    return render_template('timetable/timetable.html',
-                           teacher_name=teacher_name, title=teacher_name,
-                           web_header=teacher_name, timetable=t,
-                           my_timetables=my_timetables, show_welcome=False,
-                           editable=False)
+    return render_timetable(teacher.fullname, teacher.lessons, editable=False)
 
 @teacher.route('/ucitelia/<teacher_slug>/export')
 def export_timetable(teacher_slug):

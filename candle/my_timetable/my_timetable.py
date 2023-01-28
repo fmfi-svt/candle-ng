@@ -9,6 +9,7 @@ import re
 from candle import db
 from candle.models import UserTimetable, Teacher, Room, StudentGroup, Lesson, Subject
 from candle.timetable.layout import Layout, TooManyColumnsError
+from candle.timetable.render import render_timetable
 from candle.timetable.timetable import get_lessons_as_csv_response
 
 my_timetable = Blueprint('my_timetable',
@@ -17,25 +18,17 @@ my_timetable = Blueprint('my_timetable',
                          static_url_path='/my_timetable/static')
 
 
+def get_timetable(id_):
+    id_ = int(id_)
+    return current_user.timetables.filter(UserTimetable.id_ == id_).first()
 
 @my_timetable.route('/moj-rozvrh/<id_>')
 @login_required
 def show_timetable(id_):
-    id_ = int(id_)
-    my_timetables = current_user.timetables
-    ut = UserTimetable.query.get_or_404(id_)
+    ut = get_timetable(id_)
     if ut is None:
         return render_template('errors/404.html'), 404
-
-    lessons = ut.lessons.order_by(Lesson.day, Lesson.start).all()
-    t = Layout(lessons)
-    if t is None:
-        raise Exception("Timetable cannot be None")
-    return render_template('timetable/timetable.html',
-                           title=ut.name, web_header=ut.name, timetable=t,
-                           my_timetables=my_timetables, selected_timetable_key=id_,
-                           show_welcome=False, editable=True)
-
+    return render_timetable(ut.name, ut.lessons, selected_timetable_key=id_)
 
 
 @my_timetable.route('/moj-rozvrh', methods=['POST'])
