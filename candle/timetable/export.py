@@ -16,6 +16,8 @@ def export_timetable(format, lessons):
         return _to_csv(layout)
     if format == "json":
         return _to_json(layout)
+    if format == "list":
+        return _to_list(layout)
     abort(404)
 
 
@@ -45,4 +47,15 @@ def _to_json(layout: Layout):
 
     response = make_response(json.dumps(data))
     response.mimetype = 'application/json'
+    return response
+
+
+def _to_list(layout: Layout):
+    subjects = set()
+
+    for lesson in layout.get_lessons():
+        subjects.add(lesson.subject.short_code)
+
+    response = make_response("\n".join(subjects))
+    response.mimetype = "text/plain"
     return response
