@@ -188,7 +188,7 @@ class LessonType(db.Model):
         return f"{self.name}"
 
 
-class Subject(db.Model):
+class Subject(SchoolTimetable):
     id_ = db.Column('id', db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     code = db.Column(db.String(50), nullable=False)
@@ -209,6 +209,10 @@ class Subject(db.Model):
             "name": self.name,
             "shortcode": self.short_code,
         }
+
+    @property
+    def timetable_name(self) -> str:
+        return f"{self.name}"
 
 
 class RoomType(db.Model):

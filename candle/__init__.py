@@ -48,6 +48,7 @@ def register_blueprints(app):
     from candle.entities.room.room import room
     from candle.entities.student_group.student_group import student_group
     from candle.entities.teacher.teacher import teacher
+    from candle.entities.subject.subject import subject
     from candle.panel.panel import panel
     from candle.search.search import search
     from candle.errors.errors import errors
@@ -60,6 +61,7 @@ def register_blueprints(app):
     app.register_blueprint(room)
     app.register_blueprint(student_group)
     app.register_blueprint(teacher)
+    app.register_blueprint(subject)
     app.register_blueprint(panel)
     app.register_blueprint(search)
     app.register_blueprint(errors)
