@@ -3,7 +3,7 @@ Project: Candle (New Generation): Candle rewrite from PHP to Python.
 Author: Daniel Grohol, FMFI UK
 '''
 
-from typing import List
+from typing import List, Optional, Set
 from candle.timetable.placed_lesson import PlacedLesson
 from candle.timetable.layout_component import LayoutComponent
 
@@ -21,6 +21,7 @@ class Layout:
      It is a list of 5 lists - one for every day of the week. Every "day" is a list of "columns". Each column is a list of PlacedLessons.
     (days: List -> columns: List[PlacedLesson])"""
 
+    __highlighted_lesson_ids = None
 
     # teaching times:
     __TIME_MIN = 440    # teaching starts at 7:20 (440 in minutes)
@@ -37,13 +38,14 @@ class Layout:
     # Infolist URL:
     __INFOLIST_URL = 'https://sluzby.fmph.uniba.sk/infolist/SK/'
 
-    def __init__(self, lessons=None):
+    def __init__(self, lessons=None, highlighted_lesson_ids: Optional[Set[int]] = None):
         """
         :param lessons: Objects of the Lesson model sorted by day and start-time.
         """
         if lessons is None:
             raise Exception("Cannot create timetable layout without lessons!")
         self.__lessons = lessons
+        self.__highlighted_lesson_ids = highlighted_lesson_ids or []
         self.__init_times()
         self.__init_layout()
         self.__set_layout()
@@ -110,7 +112,12 @@ class Layout:
 
                     # try to add the lesson:
                     if self.__can_add_lesson(lesson, self.__layout[day_index][column_index]):
-                        placed_lesson = PlacedLesson(timetable=self, lesson=lesson, column=column_index)
+                        placed_lesson = PlacedLesson(
+                            timetable=self,
+                            lesson=lesson,
+                            column=column_index,
+                            is_highlighted=lesson.id_ in self.__highlighted_lesson_ids
+                        )
                         self.__add_neighbours(placed_lesson, day_index)
                         # if there isn't any other ongoing lesson - we have a new component:
                         if placed_lesson.has_neigs() == False:

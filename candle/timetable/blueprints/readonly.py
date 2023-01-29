@@ -14,7 +14,11 @@ def register_timetable_routes(bp: Blueprint, getter: Callable[[str], SchoolTimet
     def show_timetable(slug):
         """Shows a timetable."""
         obj = getter(slug)
-        return render_timetable(obj.timetable_name, obj.lessons, editable=False)
+        return render_timetable(
+            title=obj.timetable_name,
+            lessons=obj.lessons,
+            editable=False
+        )
 
     @bp.route('/<slug>.<format>')
     def export_timetable(slug, format):
