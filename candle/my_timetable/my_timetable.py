@@ -3,11 +3,11 @@ Project: Candle (New Generation): Candle rewrite from PHP to Python.
 Author: Daniel Grohol, FMFI UK
 '''
 
-from flask import Blueprint, request, url_for, jsonify, render_template, abort
+from flask import Blueprint, request, url_for, jsonify, render_template
 from flask_login import current_user, login_required
-import re
 from candle import db
-from candle.models import UserTimetable, Teacher, Room, StudentGroup, Lesson, Subject
+from candle.models import UserTimetable, Lesson, Subject
+from candle.timetable.utils import duplicate_timetable, get_unique_name
 from candle.timetable.export import export_timetable_as
 from candle.timetable.layout import Layout, TooManyColumnsError
 from candle.timetable.render import render_timetable
@@ -34,7 +34,7 @@ def show_timetable(id_):
 def new_timetable():
     """Create a new timetable"""
     name = request.form['name']
-    name = getUniqueName(name)
+    name = get_unique_name(name)
     ut = UserTimetable(name=name, user_id=current_user.id)
     db.session.add(ut)
     db.session.commit()
@@ -49,72 +49,12 @@ def export_my_timetable(id_, format):
 
 
 @login_required
-@my_timetable.route("/ucitelia/<teacher_slug>/duplicate", methods=['POST'])
-def duplicate_teacher_timetable(teacher_slug):
-    old_timetable = Teacher.query.filter_by(slug=teacher_slug).first_or_404()
-    new_timetable_id = duplicate_timetable(old_timetable)
-    return jsonify({'next_url': url_for("my_timetable.show_timetable", id_=new_timetable_id)})
-
-@login_required
-@my_timetable.route("/miestnosti/<room_url_id>/duplicate", methods=['POST'])
-def duplicate_room_timetable(room_url_id):
-    old_timetable = Room.query.filter_by(name=room_url_id).first_or_404()
-    new_timetable_id = duplicate_timetable(old_timetable)
-    return jsonify({'next_url': url_for("my_timetable.show_timetable", id_=new_timetable_id)})
-
-@login_required
-@my_timetable.route("/kruzky/<group_url_id>/duplicate", methods=['POST'])
-def duplicate_student_group_timetable(group_url_id):
-    old_timetable = StudentGroup.query.filter_by(name=group_url_id).first_or_404()
-    new_timetable_id = duplicate_timetable(old_timetable)
-    return jsonify({'next_url': url_for("my_timetable.show_timetable", id_=new_timetable_id)})
-
-@login_required
 @my_timetable.route("/moj-rozvrh/<id_>/duplicate", methods=['POST'])
 def duplicate_my_timetable(id_):
     old_timetable = UserTimetable.query.get_or_404(id_)
     new_timetable_id = duplicate_timetable(old_timetable)
     return jsonify({'next_url': url_for("my_timetable.show_timetable", id_=new_timetable_id)})
 
-
-def duplicate_timetable(old_timetable):
-    """Create a new timetable as a duplicate of old one and return its id."""
-    if isinstance(old_timetable, Teacher):
-        old_name = old_timetable.short_name
-    else:
-        old_name = old_timetable.name
-    new_name = getUniqueName(old_name)
-    new_t = UserTimetable(name=new_name, user_id=current_user.id)
-    db.session.add(new_t)
-    for lesson in old_timetable.lessons:
-        new_t.lessons.append(lesson)
-    db.session.commit()
-    return new_t.id_
-
-
-
-def getUniqueName(name) -> str:
-    """Ensure that this timetable will not have the same name as some other one.
-    :param name: name for timetable
-    :return: unique name for timetable
-    """
-    pattern = '^(.*) \(\d+\)$'
-    match = re.match(pattern, name)
-    # if the name is in the format "Name (x)", where x is a number:
-    if match:
-        name = match.group(1)  # get the name before parenthesis (without a number)
-    # get the names of the current timetables:
-    timetables_names = [t.name for t in current_user.timetables]
-    if name not in timetables_names:
-        return name
-
-    # add "(index)" after the name, and try if it is unique:
-    index = 2
-    while True:
-        new_name = f"{name} ({index})"
-        if new_name not in timetables_names:
-            return new_name
-        index += 1
 
 
 @login_required

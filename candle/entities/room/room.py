@@ -4,21 +4,17 @@ Author: Daniel Grohol, FMFI UK
 '''
 
 from flask import render_template, Blueprint
-from flask_login import current_user
-from candle.models import Room, Lesson, Subject
+from candle.models import Room
 from typing import Dict
 
-from candle.timetable.export import export_timetable_as
-from candle.timetable.layout import Layout
-from candle.timetable.render import render_timetable
-from candle.timetable.timetable import get_lessons_as_csv_response
+from candle.timetable.blueprints.readonly import register_timetable_routes
 
 room = Blueprint('room',
                  __name__,
-                 template_folder='templates')
+                 template_folder='templates', url_prefix="/miestnosti")
 
 
-@room.route('/miestnosti')
+@room.route('')
 def list_rooms():
     """Show all rooms."""
     rooms_list = Room.query.order_by(Room.name).all()
@@ -28,25 +24,13 @@ def list_rooms():
                            web_header=title)
 
 
-@room.route('/miestnosti/<room_url_id>')
-def show_timetable(room_url_id):
-    """Show a timetable for a room."""
-    room = get_room_by_id(room_url_id)
-    return render_timetable(f"Rozvrh miestnosti {room.name}", room.lessons, editable=False)
-
-
-@room.route('/miestnosti/<room_url_id>.<format>')
-def export_timetable(room_url_id, format):
-    """Return timetable as a CSV. Data are separated by a semicolon (;)."""
-    return export_timetable_as(format, get_room_by_id(room_url_id).lessons)
-
-
-def get_room_by_id(room_url_id):
+def get_room(room_url_id: str) -> Room:
     if room_url_id.isnumeric():
-        room = Room.query.filter_by(id_=room_url_id).first_or_404()
-    else:
-        room = Room.query.filter_by(name=room_url_id).first_or_404()
-    return room
+        return Room.query.filter_by(id_=room_url_id).first_or_404()
+    return Room.query.filter_by(name=room_url_id).first_or_404()
+
+
+register_timetable_routes(room, get_room)
 
 
 def get_rooms_sorted_by_dashes(rooms_lst) -> Dict:
