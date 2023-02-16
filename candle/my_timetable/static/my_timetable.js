@@ -75,6 +75,42 @@ $(function(){
   });
 });
 
+$(function(){
+  $('button[name="selection_action"]').on('click',function(){
+    const action = $(this).attr("value");
+    const selection_source = $('select[name="selection_source"]').val();
+
+    if (selection_source == "selection") {
+        var selector = $('input[name="lesson_selection[]"]:checked');
+    } else if (selection_source == "selection_inv") {
+        var selector = $('input[name="lesson_selection[]"]:not(:checked)');
+    } else if (selection_source == "highlight") {
+        var selector = $('div.highlighted input[type="checkbox"]')
+    } else if (selection_source == "highlight_inv") {
+        var selector = $('div.hodina:not(.highlighted) input[type="checkbox"]')
+    } else {
+        var selector = $('input[name="lesson_selection[]"]');
+    }
+
+    const lesson_ids = selector.toArray().map((item) => item.value);
+    if (lesson_ids.length == 0) {
+        return;
+    }
+    $.ajax(
+        {
+            url: window.location.href + "/edit-lessons/" + action,
+            type: "POST",
+            contentType: "application/json",
+            dataType: "json",
+            data: JSON.stringify({"lesson_ids": lesson_ids})
+        }
+    ).done(function (data) {
+        $('#rozvrh').html(data['layout_html']);
+        $('#rozvrhList').html(data['list_html']);
+    });
+  });
+});
+
 function lesson_checkbox_handler(checkbox, subject_id) {
     // function is called from the HTML ("onclick" attribute)
 

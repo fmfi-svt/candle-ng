@@ -7,9 +7,10 @@ class PlacedLesson:
     """This class deals with how the lesson is positioned in the layout.
     PlacedLesson is positioned by CSS position:absolute property."""
 
-    def __init__(self, timetable, lesson, column=0):
+    def __init__(self, timetable, lesson, column=0, is_highlighted: bool=False):
         self.timetable = timetable
         self.lesson = lesson
+        self.is_highlighted = is_highlighted
         self.column = column
         """Column in which the lesson is placed in."""
 

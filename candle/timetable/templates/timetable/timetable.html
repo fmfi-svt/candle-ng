@@ -1,7 +1,7 @@
 {% extends "main/base.html" %}
 
 {% block timetable_menu %}
-        {% include('timetable/tabs_and_actions.html') %}
+    {% include('timetable/tabs_and_actions.html') %}
 {% endblock %}
 
 {% block obsah %}
@@ -12,6 +12,21 @@
             <p> alebo sa <a href="{{ url_for('auth.login') }}">prihláste</a> a budete si môct vytvárať vlastné rozvrhy.</p>
         </div>
     {% else %}
+        {% if editable %}
+            <div id="timetable_editor_command_bar">
+                <select id="timetable_selection_id_source" name="selection_source">
+                    <option value="selection" id="selection_source_selection">Označené</option>
+                    <option value="selection_inv" id="selection_source_selection_inv">Neoznačené</option>
+                    <option value="highlight" id="selection_source_highlight">Zvýraznené</option>
+                    <option value="highlight_inv" id="selection_source_highlight_inv">Nezvýraznené</option>
+                    <option value="all" id="selection_source_all">Všetky</option>
+                </select>
+                hodiny v rozvrhu
+                <button name="selection_action" type="submit" value="highlight" id="timetable_editor_selection_action_highlight">Zvýrazňovať</button>
+                <button name="selection_action" type="submit" value="unhighlight" id="timetable_editor_selection_action_unhighlight">Nezvýrazňovať</button>
+                <button name="selection_action" type="submit" value="remove" id="timetable_editor_selection_action_remove">Odstrániť</button>
+            </div>
+        {% endif %}
         <div id="rozvrh">
             {% include('timetable/timetable_content.html') %}
         </div>
