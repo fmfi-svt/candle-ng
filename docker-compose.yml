@@ -15,6 +15,7 @@ services:
       context: .
     environment:
       - FLASK_APP=run.py
+      - FLASK_DEBUG=True
       - SQLALCHEMY_DATABASE_URI=mysql+pymysql://candle:candle@db/candle
     env_file:
       - .env
