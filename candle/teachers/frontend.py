@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request
 
 from typing import Dict
-from candle.entities.helpers import string_starts_with_ch
+from candle.utils import string_starts_with_ch
 import unidecode
 
 from candle.teachers.search import search_teachers, get_teacher
