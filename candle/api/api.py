@@ -5,7 +5,8 @@ Author: Daniel Grohol, FMFI UK
 
 
 from flask import Blueprint, request, jsonify
-from candle.models import Teacher, Room, StudentGroup, Subject, Lesson, teacher_lessons
+from candle.models import Teacher, StudentGroup, Subject, Lesson, teacher_lessons
+from candle.rooms.models import Room
 
 api = Blueprint('api', __name__)
 

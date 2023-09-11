@@ -25,6 +25,7 @@ debug_toolbar = DebugToolbarExtension()
 
 def create_app(config_class=Config):
     app = Flask(__name__)
+    app.url_map.strict_slashes = False
     app.config.from_object(config_class)
 
     # Use middleware for 2016 path-prefix. Used for testing.  Source: https://dlukes.github.io/flask-wsgi-url-prefix.html#mwe
@@ -45,26 +46,27 @@ def register_blueprints(app):
     from candle.auth.auth import auth
     from candle.timetable.timetable import timetable
     from candle.my_timetable.my_timetable import my_timetable
-    from candle.entities.room.room import room
     from candle.entities.student_group.student_group import student_group
     from candle.entities.teacher.teacher import teacher
     from candle.entities.subject.subject import subject
     from candle.panel.panel import panel
     from candle.search.search import search
     from candle.errors.errors import errors
+    from candle.rooms.frontend import rooms
 
     app.register_blueprint(main)
     app.register_blueprint(api)
     app.register_blueprint(auth)
     app.register_blueprint(timetable)
     app.register_blueprint(my_timetable)
-    app.register_blueprint(room)
     app.register_blueprint(student_group)
     app.register_blueprint(teacher)
     app.register_blueprint(subject)
     app.register_blueprint(panel)
     app.register_blueprint(search)
     app.register_blueprint(errors)
+
+    app.register_blueprint(rooms)
 
 
 def init_extensions(app):
