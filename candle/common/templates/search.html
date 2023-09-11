@@ -1,0 +1,45 @@
+{% extends "main/base.html" %}
+
+{% block obsah %}
+    <form>
+        <input type="text" name="q" value="{{ request.args.q }}">
+        <button type="submit">Vyhľadať</button>
+    </form>
+
+    {% if subjects %}
+    <h2>Predmety</h2>
+    <ul>
+        {% for subject in subjects %}
+        <li><a href="{{ url_for("subjects.show_timetable", slug=subject.url_id) }}">{{ subject }}</a></li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if groups %}
+    <h2>Krúžky</h2>
+    <ul>
+        {% for group in groups %}
+        <li><a href="{{ url_for("groups.show_timetable", slug=group.url_id) }}">{{ group }}</a></li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if teachers %}
+    <h2>Učitelia</h2>
+    <ul>
+        {% for teacher in teachers %}
+        <li><a href="{{ url_for("teachers.show_timetable", slug=teacher.url_id) }}">{{ teacher }}</a></li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if rooms %}
+    <h2>Miestnosti</h2>
+    <ul>
+        {% for room in rooms %}
+        <li><a href="{{ url_for("rooms.show_timetable", slug=room.url_id) }}">{{ room }}</a></li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+{% endblock %}
+

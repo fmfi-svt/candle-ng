@@ -10,6 +10,9 @@ class Room(SchoolTimetable):
     lessons = db.relationship('Lesson', backref='room',
                               lazy='dynamic')  # 'lazy dynamic' allows us to work with lessons attribute like with query ( we can run order_by, etc)
 
+    def __str__(self):
+        return self.name
+
     @property
     def prefix(self):
         # xMieRez is a special case:

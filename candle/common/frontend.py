@@ -1,9 +1,14 @@
-from flask import Blueprint, render_template, redirect, url_for
+from flask import Blueprint, render_template, redirect, url_for, request
 from flask_login import current_user
 
 from candle import db
+from candle.groups.search import search_groups
 from candle.models import UserTimetable
 from flask_wtf.csrf import CSRFError
+
+from candle.rooms.search import search_rooms
+from candle.subjects.search import search_subjects
+from candle.teachers.search import search_teachers
 
 common = Blueprint('common', __name__, template_folder="templates",
                 static_folder='static',
@@ -27,6 +32,19 @@ def home():
         return redirect(url_for('my_timetable.show_timetable', id_=ut.id_) )
     else:  # user is logged out, show welcome-info:
         return render_template('timetable/timetable.html', title='Rozvrh', show_welcome=True)
+
+
+@common.route('/search/')
+def search():
+    query = request.args.get("q")
+    if query:
+        return render_template("search.html", title="Vyhľadávanie",
+                               subjects=search_subjects(query).limit(20).all(),
+                               groups=search_groups(query).limit(20).all(),
+                               rooms=search_rooms(query).limit(20).all(),
+                               teachers=search_teachers(query).limit(20).all(),
+                               )
+    return render_template('search.html', title='Vyhľadávanie')
 
 
 @common.app_errorhandler(404)

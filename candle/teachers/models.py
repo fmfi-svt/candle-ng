@@ -24,6 +24,10 @@ class Teacher(SchoolTimetable):
     def __repr__(self):
         return f"Teacher(id:'{self.id_}', :'{self.given_name} {self.family_name}' )"
 
+
+    def __str__(self):
+        return self.fullname
+
     @property
     def short_name(self):
         """E.g. for 'Andrej Blaho' return 'A. Blaho'"""
@@ -56,3 +60,10 @@ class Teacher(SchoolTimetable):
             "login": self.login,
             "slug": self.slug,
         }
+
+    @property
+    def url_id(self):
+        if self.slug:
+            return self.slug
+        return self.id_
+

@@ -15,6 +15,11 @@ class Subject(SchoolTimetable):
     def __repr__(self):
         return f"Subject(id:'{self.id_}', name:'{self.name}' )"
 
+    def __str__(self):
+        if self.short_code:
+            return f"{self.short_code} - {self.name}"
+        return self.name
+
     def to_dict(self) -> dict:
         """
         Returns the Subject as dict for JSON rendering.
@@ -29,3 +34,9 @@ class Subject(SchoolTimetable):
     @property
     def timetable_name(self) -> str:
         return self.name
+
+    @property
+    def url_id(self):
+        if self.short_code:
+            return self.short_code
+        return self.id_

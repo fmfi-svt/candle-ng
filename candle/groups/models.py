@@ -11,6 +11,9 @@ class StudentGroup(SchoolTimetable):
     name = db.Column(db.String(30), nullable=False)
     lessons = db.relationship('Lesson', secondary=student_group_lessons, lazy='dynamic')
 
+    def __str__(self):
+        return self.name
+
     @property
     def timetable_name(self) -> str:
         return f"Rozvh krúžku {self.name}"
