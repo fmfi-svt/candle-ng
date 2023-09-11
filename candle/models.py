@@ -6,7 +6,6 @@ Author: Daniel Grohol, FMFI UK
 from typing import Union
 
 from flask_login import UserMixin
-from sqlalchemy.ext.hybrid import hybrid_property
 
 from candle import db, login_manager
 from candle.timetable.layout import Layout
@@ -33,96 +32,6 @@ class SchoolTimetable(db.Model):
     @property
     def lessons(self):
         raise NotImplementedError()
-
-
-class Room(SchoolTimetable):
-    id_ = db.Column('id', db.Integer, primary_key=True)
-    name = db.Column('name', db.String(30), nullable=False)
-    room_type_id = db.Column(db.Integer, db.ForeignKey('room_type.id'), nullable=False)
-    capacity = db.Column(db.Integer, nullable=False)
-    lessons = db.relationship('Lesson', backref='room',
-                              lazy='dynamic')  # 'lazy dynamic' allows us to work with lessons attribute like with query ( we can run order_by, etc)
-
-    @property
-    def prefix(self):
-        # xMieRez is a special case:
-        if 'xMieRez' in self.name:
-            return "Ostatné"
-
-        first_dash_position = self.name.find('-')
-        if first_dash_position == -1:  # name doesn't contain '-'
-            return self.name
-        return self.name[0 : first_dash_position]
-
-    def __repr__(self):
-        return "<Room %r>" % self.name
-
-    @property
-    def timetable_name(self) -> str:
-        return self.name
-
-
-teacher_lessons = db.Table('teacher_lessons',
-                           db.Column('id', db.Integer, primary_key=True),
-                           db.Column('teacher_id', db.Integer, db.ForeignKey('teacher.id')),
-                           db.Column('lesson_id', db.Integer, db.ForeignKey('lesson.id')))
-
-class Teacher(SchoolTimetable):
-    id_ = db.Column('id', db.Integer, primary_key=True)
-    given_name = db.Column(db.String(50), nullable=True)
-    family_name = db.Column(db.String(50), nullable=False)
-    iniciala = db.Column(db.String(50), nullable=True)
-    oddelenie = db.Column(db.String(), nullable=True)
-    katedra = db.Column(db.String(), nullable=True)
-    external_id = db.Column(db.String(), nullable=True)
-    login = db.Column(db.String(), nullable=True)
-    slug = db.Column(db.String(), nullable=True)
-    lessons = db.relationship('Lesson', secondary=teacher_lessons, lazy='dynamic',
-                              backref=db.backref('teachers', lazy='joined', order_by="asc(Teacher.family_name)"))
-    def __repr__(self):
-        return f"Teacher(id:'{self.id_}', :'{self.given_name} {self.family_name}' )"
-
-    @property
-    def short_name(self):
-        """E.g. for 'Andrej Blaho' return 'A. Blaho'"""
-        if self.given_name is None or self.given_name.strip() == '':
-            return self.family_name
-        return self.given_name[0] + ". " + self.family_name
-
-    @hybrid_property
-    def fullname(self):
-        return self.given_name + " " + self.family_name
-
-    @hybrid_property    # we need it in SQL queries
-    def fullname_reversed(self):
-        return self.family_name + " " + self.given_name
-
-    @property
-    def timetable_name(self) -> str:
-        return self.fullname
-
-    @property
-    def timetable_short_name(self) -> str:
-        return self.short_name
-
-
-student_group_lessons = db.Table('student_group_lessons',
-                                 db.Column('student_group_id', db.Integer, db.ForeignKey('student_group.id')),
-                                 db.Column('lesson_id', db.Integer, db.ForeignKey('lesson.id')))
-
-
-class StudentGroup(SchoolTimetable):
-    id_ = db.Column('id', db.Integer, primary_key=True)
-    name = db.Column(db.String(30), nullable=False)
-    lessons = db.relationship('Lesson', secondary=student_group_lessons, lazy='dynamic')
-
-    @property
-    def timetable_name(self) -> str:
-        return f"Rozvh krúžku {self.name}"
-
-    @property
-    def timetable_short_name(self) -> str:
-        return self.name
 
 
 class Lesson(db.Model):
@@ -198,39 +107,6 @@ class LessonType(db.Model):
 
     def __repr__(self):
         return self.name
-
-
-class Subject(SchoolTimetable):
-    id_ = db.Column('id', db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    code = db.Column(db.String(50), nullable=False)
-    short_code = db.Column(db.String(20), nullable=False)
-    credit_value = db.Column(db.Integer, nullable=False)
-    rozsah = db.Column(db.String(30), nullable=True)
-    external_id = db.Column(db.String(30), nullable=True)
-    lessons = db.relationship('Lesson', backref='subject', lazy=True)
-
-    def __repr__(self):
-        return f"Subject(id:'{self.id_}', name:'{self.name}' )"
-
-    def to_dict(self) -> dict:
-        """
-        Returns the Subject as dict for JSON rendering.
-        """
-        return {
-            "name": self.name,
-            "shortcode": self.short_code,
-        }
-
-    @property
-    def timetable_name(self) -> str:
-        return self.name
-
-
-class RoomType(db.Model):
-    id_ = db.Column('id', db.Integer, primary_key=True)
-    name = db.Column(db.String(30), nullable=False)
-    code = db.Column(db.String(1), nullable=False)
 
 
 user_timetable_lessons = db.Table('user_timetable_lessons',

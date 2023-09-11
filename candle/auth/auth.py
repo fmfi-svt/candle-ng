@@ -16,12 +16,12 @@ auth = Blueprint('auth', __name__)
 def require_remote_user(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        if current_app.config['ENV'] == 'production':
+        if current_app.config['DEBUG']:
+            request.environ.setdefault("REMOTE_USER", "svttest")
+        else:
             if request.environ.get('REMOTE_USER') is None:
                 flash('User not logged in', 'error')
-                return redirect(url_for('main.home'))
-        else:
-            request.environ.setdefault("REMOTE_USER", "svttest")
+                return redirect(url_for('common.home'))
         return func(*args, **kwargs)
     return wrapper
 
@@ -39,11 +39,11 @@ def login():
         # flash('Prihlasenie bolo neuspesne.')
 
     login_user(user, remember=True)
-    return redirect(url_for("main.home"))
+    return redirect(url_for("common.home"))
 
 
 @auth.route('/odhlasit')
 @require_remote_user
 def logout():
     logout_user()
-    return redirect(url_for('main.home'))
+    return redirect(url_for('common.home'))

@@ -10,7 +10,7 @@ from candle.timetable.render import render_timetable
 
 
 def register_timetable_routes(bp: Blueprint, getter: Callable[[str], SchoolTimetable]):
-    @bp.route('/<slug>')
+    @bp.route('/<slug>/')
     def show_timetable(slug):
         """Shows a timetable."""
         obj = getter(slug)
@@ -27,7 +27,7 @@ def register_timetable_routes(bp: Blueprint, getter: Callable[[str], SchoolTimet
         return export_timetable_as(format, obj.lessons)
 
     @login_required
-    @bp.route("/<slug>/duplicate", methods=['POST'])
+    @bp.route("/<slug>/duplicate/", methods=['POST'])
     def duplicate(slug):
         new_timetable_id = duplicate_timetable(getter(slug))
         return jsonify({'next_url': url_for("my_timetable.show_timetable", id_=new_timetable_id)})

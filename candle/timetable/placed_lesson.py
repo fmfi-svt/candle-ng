@@ -75,5 +75,5 @@ class PlacedLesson:
         """Only for debug purpose. Print info about placed lesson."""
         print()
         print("Placed-Lesson Info:")
-        print(f"{self.lesson.subject.name} {self.lesson.room.name} {self.lesson.type.name} {self.lesson.subject.code}")
+        print(f"{self.lesson.subjects.name} {self.lesson.room.name} {self.lesson.type.name} {self.lesson.subjects.code}")
         print(f"column: {self.column}")

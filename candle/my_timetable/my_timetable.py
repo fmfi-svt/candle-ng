@@ -12,9 +12,9 @@ from candle import db
 from candle.models import (
     UserTimetable,
     Lesson,
-    Subject,
     user_timetable_lessons,
 )
+from candle.subjects.models import Subject
 from candle.timetable.export import export_timetable_as
 from candle.timetable.layout import Layout, TooManyColumnsError
 from candle.timetable.render import render_timetable

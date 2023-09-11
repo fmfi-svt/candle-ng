@@ -8,7 +8,11 @@ This blueprint contains AJAX routes that corresponds to the search function.
 from flask import Blueprint, request, jsonify, render_template
 from flask_login import current_user
 
-from candle.models import Teacher, Room, StudentGroup, Lesson, teacher_lessons, Subject, UserTimetable
+from candle.models import Lesson, UserTimetable
+from candle.teachers.models import teacher_lessons, Teacher
+from candle.subjects.models import Subject
+from candle.groups.models import StudentGroup
+from candle.rooms.models import Room
 
 search = Blueprint('search',
                    __name__,

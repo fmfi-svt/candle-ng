@@ -1,0 +1,19 @@
+<meta charset="UTF-8">
+<meta name="csrf-token" content="{{ csrf_token() }}">       {# https://stackoverflow.com/questions/31888316/how-to-use-flask-wtforms-csrf-protection-with-ajax #}
+
+<script type=text/javascript>       {# https://flask.palletsprojects.com/en/1.1.x/patterns/jquery/#where-is-my-site #}
+  $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+</script>
+
+<title>{% include('main/title.html') %}</title>
+<link rel="shortcut icon" href="{{ url_for('common.static', filename='images/favicon.ico') }}">
+
+{# Candle CSS #}
+<link rel="stylesheet" type="text/css" media="screen" href="{{ url_for('common.static', filename='css/main.css') }}" />
+<link rel="stylesheet" type="text/css" media="screen" href="{{ url_for('common.static', filename='css/dark.css') }}" title="Tmavé farby" />
+
+{# CSS for JQUERY-UI #}
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+{# Font-awesome 4.7 #}
+<script src="https://use.fontawesome.com/8a22e4ae31.js"></script>

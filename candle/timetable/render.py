@@ -4,7 +4,8 @@ from flask import render_template
 from flask_login import current_user
 from sqlalchemy.orm import joinedload, contains_eager
 
-from candle.models import Lesson, Subject
+from candle.models import Lesson
+from candle.subjects.models import Subject
 from candle.timetable.layout import Layout
 
 

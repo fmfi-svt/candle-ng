@@ -1,0 +1,26 @@
+{# Print out all teachers #}
+
+{% extends "main/base.html" %}
+
+{% block obsah_in %}
+    {{ super() }}
+        <p>
+            {% for first_letter in teachers_dict %}
+            <a href="#{{ first_letter }}">{{ first_letter }}</a>
+            {% endfor %}
+        </p>
+
+        {# For each categeroy:#}
+        {% for category_key in teachers_dict %}
+        <h2 id="{{ category_key }}">{{ category_key }}</h2>
+            <ul>
+                {% for teacher in teachers_dict[category_key] -%}
+                    <li><a href="{{ url_for('teachers.show_timetable', slug=teacher.slug) }}">{{ teacher.family_name }}
+                    {%- if teacher.given_name -%}
+                        {{ ', ' }}{{ teacher.given_name }}
+                    {%- endif -%}
+                    </a></li>
+                {%-  endfor %}
+            </ul>
+        {% endfor %}
+{% endblock %}
