@@ -1,4 +1,4 @@
-name: pre-commit + migration check
+name: pre-commit check
 
 on:
   pull_request:
