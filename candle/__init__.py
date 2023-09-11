@@ -30,30 +30,29 @@ def create_app(config_class=Config):
 
 
 def register_blueprints(app):
-    from candle.main.main import main
     from candle.auth.auth import auth
     from candle.timetable.timetable import timetable
     from candle.my_timetable.my_timetable import my_timetable
     from candle.panel.panel import panel
     from candle.search.search import search
-    from candle.errors.errors import errors
+
+    from candle.api import create_api
+    from candle.common.frontend import common
     from candle.rooms.frontend import rooms
     from candle.groups.frontend import groups
     from candle.subjects.frontend import subjects
     from candle.teachers.frontend import teachers
-    from candle.api import create_api
 
-    app.register_blueprint(main)
     app.register_blueprint(auth)
     app.register_blueprint(timetable)
     app.register_blueprint(my_timetable)
     app.register_blueprint(panel)
     app.register_blueprint(search)
-    app.register_blueprint(errors)
 
     api = create_api()
     app.register_blueprint(api)
 
+    app.register_blueprint(common)
     app.register_blueprint(rooms)
     app.register_blueprint(groups)
     app.register_blueprint(subjects)
