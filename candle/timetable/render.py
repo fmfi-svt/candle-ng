@@ -2,7 +2,7 @@ from typing import Optional, Set
 
 from flask import render_template
 from flask_login import current_user
-from sqlalchemy.orm import joinedload, contains_eager
+from sqlalchemy.orm import contains_eager, joinedload
 
 from candle.models import Lesson
 from candle.subjects.models import Subject
@@ -16,18 +16,21 @@ def render_timetable(
     editable: bool = True,
     **kwargs
 ):
-    lessons = lessons.join(
-        Lesson.subject
-    ).options(
-        joinedload(Lesson.room),
-        joinedload(Lesson.type),
-        joinedload(Lesson.teachers),
-        contains_eager(Lesson.subject),
-    ).order_by(
-        Lesson.day,
-        Lesson.start,
-        Subject.name,
-    ).all()
+    lessons = (
+        lessons.join(Lesson.subject)
+        .options(
+            joinedload(Lesson.room),
+            joinedload(Lesson.type),
+            joinedload(Lesson.teachers),
+            contains_eager(Lesson.subject),
+        )
+        .order_by(
+            Lesson.day,
+            Lesson.start,
+            Subject.name,
+        )
+        .all()
+    )
     t = Layout(lessons=lessons, highlighted_lesson_ids=highlighted_lesson_ids)
 
     if current_user.is_authenticated:
@@ -35,7 +38,7 @@ def render_timetable(
     else:
         my_timetables = None
     return render_template(
-        'timetable/timetable.html',
+        "timetable/timetable.html",
         title=title,
         web_header=title,
         timetable=t,

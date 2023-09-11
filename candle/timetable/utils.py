@@ -1,8 +1,9 @@
 import re
 
+from flask_login import current_user
+
 from candle import db
 from candle.models import SchoolTimetable, UserTimetable
-from flask_login import current_user
 
 
 def get_unique_name(name) -> str:
@@ -10,7 +11,7 @@ def get_unique_name(name) -> str:
     :param name: name for timetable
     :return: unique name for timetable
     """
-    pattern = '^(.*) \(\d+\)$'
+    pattern = "^(.*) \(\d+\)$"
     match = re.match(pattern, name)
     # if the name is in the format "Name (x)", where x is a number:
     if match:
@@ -38,4 +39,3 @@ def duplicate_timetable(old_timetable: SchoolTimetable):
         new_t.lessons.append(lesson)
     db.session.commit()
     return new_t.id_
-

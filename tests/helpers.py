@@ -18,13 +18,13 @@ def get_page(url=None):
 def get_list_of_elements(url, selector):
     print(url)
     page = get_page(url)
-    soup = BeautifulSoup(page, 'html.parser')
+    soup = BeautifulSoup(page, "html.parser")
     elements = soup.select(selector)
     return [e for e in elements]
 
 
 def get_href_links_sorted(elements: List):
-    return sorted([e['href'] for e in elements])
+    return sorted([e["href"] for e in elements])
 
 
 def get_texts_sorted(elements: List):
@@ -35,7 +35,10 @@ def get_texts_sorted(elements: List):
 def print_elements_count(elements=None, timetable_instance=None, resource_name=None):
     """parameter timetable_instance should be "old" or "new"""
     t_count = len(elements)
-    print(f"\n----There are {t_count} {resource_name}s in {timetable_instance} Candle for this test.---")
+    print(
+        f"\n----There are {t_count} {resource_name}s in {timetable_instance} "
+        f"Candle for this test.---"
+    )
 
 
 def print_first_characters(page=None):
@@ -46,5 +49,5 @@ def print_first_characters(page=None):
 def save_page_locally(page=None):
     if page is None:
         raise Exception("response_byte_object cannot be None!")
-    with open('candle-saved-page.html', 'w') as f:
+    with open("candle-saved-page.html", "w") as f:
         f.write(page)

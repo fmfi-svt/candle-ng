@@ -1,20 +1,24 @@
-'''
+"""
 Project: Candle (New Generation): Candle rewrite from PHP to Python.
 Author: Daniel Grohol
-'''
+"""
 
 from flask import Flask
 from flask_debugtoolbar import DebugToolbarExtension
-from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
+
 from candle.config import Config
 
 login_manager = LoginManager()  # keeps session data
-login_manager.login_view = 'auth.login'
-# login_manager.login_message_category = 'info'  # flash message category (not yet implemented)
+login_manager.login_view = "auth.login"
+# login_manager.login_message_category = 'info'
+# ^ flash message category (not yet implemented)
 
-csrf = CSRFProtect()    # We need CSRF protection for our AJAX calls. More info: https://stackoverflow.com/questions/31888316/how-to-use-flask-wtforms-csrf-protection-with-ajax
+# We need CSRF protection for our AJAX calls.
+# More info: https://stackoverflow.com/questions/31888316/how-to-use-flask-wtforms-csrf-protection-with-ajax
+csrf = CSRFProtect()
 db = SQLAlchemy()
 debug_toolbar = DebugToolbarExtension()
 
@@ -30,18 +34,17 @@ def create_app(config_class=Config):
 
 
 def register_blueprints(app):
+    from candle.api import create_api
     from candle.auth.auth import auth
-    from candle.timetable.timetable import timetable
+    from candle.common.frontend import common
+    from candle.groups.frontend import groups
     from candle.my_timetable.my_timetable import my_timetable
     from candle.panel.panel import panel
-    from candle.search.search import search
-
-    from candle.api import create_api
-    from candle.common.frontend import common
     from candle.rooms.frontend import rooms
-    from candle.groups.frontend import groups
+    from candle.search.search import search
     from candle.subjects.frontend import subjects
     from candle.teachers.frontend import teachers
+    from candle.timetable.timetable import timetable
 
     app.register_blueprint(auth)
     app.register_blueprint(timetable)
@@ -67,5 +70,5 @@ def init_extensions(app):
 
     app.jinja_env.trim_blocks = True
     app.jinja_env.lstrip_blocks = True
-    app.jinja_env.add_extension('jinja2.ext.loopcontrols')
-    app.jinja_env.add_extension('jinja2.ext.do')
+    app.jinja_env.add_extension("jinja2.ext.loopcontrols")
+    app.jinja_env.add_extension("jinja2.ext.do")

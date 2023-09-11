@@ -2,7 +2,7 @@ from flask import Blueprint, request
 
 from candle.groups.search import get_group, search_groups
 
-groups = Blueprint('groups', __name__, url_prefix='/groups')
+groups = Blueprint("groups", __name__, url_prefix="/groups")
 
 
 @groups.route("/")

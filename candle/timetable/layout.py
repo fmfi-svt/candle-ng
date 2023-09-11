@@ -1,14 +1,17 @@
-'''
+"""
 Project: Candle (New Generation): Candle rewrite from PHP to Python.
 Author: Daniel Grohol, FMFI UK
-'''
+"""
 
 from typing import List, Optional, Set
-from candle.timetable.placed_lesson import PlacedLesson
+
 from candle.timetable.layout_component import LayoutComponent
+from candle.timetable.placed_lesson import PlacedLesson
+
 
 class TooManyColumnsError(Exception):
-    '''Handle error when there are too many adjacent lessons in one day.'''
+    """Handle error when there are too many adjacent lessons in one day."""
+
 
 class Layout:
     """Class represents a timetable layout."""
@@ -18,25 +21,27 @@ class Layout:
 
     __layout: List = None
     """Layout is a three-dimensional list that represents a timetable layout. 
-     It is a list of 5 lists - one for every day of the week. Every "day" is a list of "columns". Each column is a list of PlacedLessons.
+     It is a list of 5 lists - one for every day of the week. Every "day" is a list of
+     "columns". Each column is a list of PlacedLessons.
     (days: List -> columns: List[PlacedLesson])"""
 
     __highlighted_lesson_ids = None
 
     # teaching times:
-    __TIME_MIN = 440    # teaching starts at 7:20 (440 in minutes)
+    __TIME_MIN = 440  # teaching starts at 7:20 (440 in minutes)
     __TIME_MAX = 1190
     __SHORTEST_LESSON = 45
     __SHORTEST_BREAKTIME = 5
 
-    #  List of starting times - times in which lessons usually starts at FMPH (from 8:10 to 19:00)
+    #  List of starting times - times in which lessons usually starts
+    #  at FMPH (from 8:10 to 19:00)
     __starting_times: List[str] = []
 
-    __DAYS = "Pondelok, Utorok, Streda, Štvrtok, Piatok".split(',')
+    __DAYS = "Pondelok, Utorok, Streda, Štvrtok, Piatok".split(",")
     """list of days of the week"""
 
     # Infolist URL:
-    __INFOLIST_URL = 'https://sluzby.fmph.uniba.sk/infolist/SK/'
+    __INFOLIST_URL = "https://sluzby.fmph.uniba.sk/infolist/SK/"
 
     def __init__(self, lessons=None, highlighted_lesson_ids: Optional[Set[int]] = None):
         """
@@ -51,30 +56,39 @@ class Layout:
         self.__set_layout()
 
     def __init_times(self):
-        """Initialize __starting_times list ( starting_times are times when usualy starts lessons at FMFI / FMPH )"""
+        """
+        Initialize __starting_times list ( starting_times are times when usualy
+        starts lessons at FMFI / FMPH )
+        """
         self.__starting_times = []
         self.__set_teaching_times()
         for minutes in range(self.__TIME_MIN, self.__TIME_MAX, 50):
             self.__starting_times.append(self.minutes_2_time(minutes))
 
     def __set_teaching_times(self):
-        """Set the __TIME_MIN and __TIME_MAX attributes according to the first and last lessons in the layout."""
+        """
+        Set the __TIME_MIN and __TIME_MAX attributes according to the first
+        and last lessons in the layout.
+        """
         if self.__lessons:
             while self.__lessons[0].start < self.__TIME_MIN:
-                self.__TIME_MIN -= self.get_shortest_lesson() + self.get_shortest_breaktime()
+                self.__TIME_MIN -= (
+                    self.get_shortest_lesson() + self.get_shortest_breaktime()
+                )
             while self.__lessons[-1].end > self.__TIME_MAX:
-                self.__TIME_MAX += self.get_shortest_lesson() + self.get_shortest_breaktime()
-
+                self.__TIME_MAX += (
+                    self.get_shortest_lesson() + self.get_shortest_breaktime()
+                )
 
     def __init_layout(self):
-        """ Initializes layout as a 2d list (day: List -> column: List )."""
+        """Initializes layout as a 2d list (day: List -> column: List )."""
         self.__layout = []
         for i in range(5):
             first_column = []
             self.__layout.append([first_column])
 
     def __get_lessons_sorted_by_days(self):
-        """ Sort all lessons by days in the week. Each day is a list of lessons."""
+        """Sort all lessons by days in the week. Each day is a list of lessons."""
         if self.__lessons is None:
             raise Exception("Attribute __lessons cannot be None")
         days: List[List] = []
@@ -85,7 +99,7 @@ class Layout:
         return days
 
     def __set_layout(self):
-        """ Set the self.__layout class attribute.
+        """Set the self.__layout class attribute.
 
         For each day sort lessons to sub-columns and components.
         The algorithm always tries to add hours to the most left column."""
@@ -97,7 +111,7 @@ class Layout:
             # for each lesson in that day:
             # create a list of components and insert the first component
             components = []
-            comp_ind = -1    # component index
+            comp_ind = -1  # component index
             max_component_width = 0
             for lesson in lessons:
                 column_index = 0
@@ -105,22 +119,25 @@ class Layout:
                     if column_index >= 6:
                         raise TooManyColumnsError()
                     # if we don't have enough columns:
-                    if len(self.__layout[day_index]) - 1 <  column_index:
+                    if len(self.__layout[day_index]) - 1 < column_index:
                         # create a new one and place here lesson:
                         new_column = []
                         self.__layout[day_index].append(new_column)
 
                     # try to add the lesson:
-                    if self.__can_add_lesson(lesson, self.__layout[day_index][column_index]):
+                    if self.__can_add_lesson(
+                        lesson, self.__layout[day_index][column_index]
+                    ):
                         placed_lesson = PlacedLesson(
                             timetable=self,
                             lesson=lesson,
                             column=column_index,
-                            is_highlighted=lesson.id_ in self.__highlighted_lesson_ids
+                            is_highlighted=lesson.id_ in self.__highlighted_lesson_ids,
                         )
                         self.__add_neighbours(placed_lesson, day_index)
-                        # if there isn't any other ongoing lesson - we have a new component:
-                        if placed_lesson.has_neigs() == False:
+                        # if there isn't any other ongoing lesson - we have a new
+                        # component:
+                        if placed_lesson.has_neigs() is False:
                             # first set the width of previous component:
                             if len(components) > 0:
                                 components[comp_ind].set_width(max_component_width + 1)
@@ -134,7 +151,8 @@ class Layout:
                         self.__layout[day_index][column_index].append(placed_lesson)
                         components[-1].add(placed_lesson)
 
-                        # remember the maximum column used in this component - we call it component's width:
+                        # remember the maximum column used in this component - we call
+                        # it component's width:
                         if placed_lesson.column > max_component_width:
                             max_component_width = placed_lesson.column
                         break
@@ -146,14 +164,18 @@ class Layout:
                 for c in components:
                     c.set_lessons_width()
 
-
     def __get_column(self, day_index, column_index):
         return self.__layout[day_index][column_index]
 
     def __get_ongoing_lesson(self, time, day_index, column_index):
-        """Return lesson that is starting, or has already started for the certain time in column. If there is no such lesson,
-         return None. Note, that we need to check only last lesson in column."""
-        last_lesson = self.__get_last_added_lesson(self.__get_column(day_index, column_index))
+        """
+        Return lesson that is starting, or has already started for the certain time
+        in column. If there is no such lesson, return None. Note, that we need to check
+        only last lesson in column.
+        """
+        last_lesson = self.__get_last_added_lesson(
+            self.__get_column(day_index, column_index)
+        )
         if last_lesson:
             if time >= last_lesson.get_start() and time < last_lesson.get_end():
                 return last_lesson
@@ -165,7 +187,9 @@ class Layout:
     def __add_neighbours(self, placed_lesson, day_i):
         # left neighbour lessons:
         for col_i in range(placed_lesson.column - 1, -1, -1):
-            ongoing_lesson = self.__get_ongoing_lesson(placed_lesson.get_start(), day_i, col_i)
+            ongoing_lesson = self.__get_ongoing_lesson(
+                placed_lesson.get_start(), day_i, col_i
+            )
             if ongoing_lesson:
                 placed_lesson.add_left_neig(ongoing_lesson)
                 ongoing_lesson.add_right_neig(placed_lesson)
@@ -173,7 +197,9 @@ class Layout:
 
         # right neighbour lessons:
         for col_i in range(placed_lesson.column + 1, self.__get_columns_count(day_i)):
-            ongoing_lesson = self.__get_ongoing_lesson(placed_lesson.get_start(), day_i, col_i)
+            ongoing_lesson = self.__get_ongoing_lesson(
+                placed_lesson.get_start(), day_i, col_i
+            )
             if ongoing_lesson:
                 placed_lesson.add_right_neig(ongoing_lesson)
                 ongoing_lesson.add_left_neig(placed_lesson)
@@ -186,7 +212,7 @@ class Layout:
                 yield placed_lesson
 
     def __can_add_lesson(self, lesson, column: List):
-        """ Return True, if there is no ongoing lesson in the column.
+        """Return True, if there is no ongoing lesson in the column.
         Note, that column has to be sorted by time."""
 
         # if there is no lesson in the column:
@@ -202,7 +228,6 @@ class Layout:
         if column:
             return column[-1]
         return None
-
 
     def get_lessons(self):
         return self.__lessons

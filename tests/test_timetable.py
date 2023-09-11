@@ -1,33 +1,45 @@
 import pytest
 from bs4 import NavigableString
+
 from tests.helpers import get_list_of_elements
 
 """This module tests all lists of lessons in all timetables."""
 
-resources = [
-    '/miestnosti',
-    '/ucitelia',
-    '/kruzky'
-]
+resources = ["/miestnosti", "/ucitelia", "/kruzky"]
+
 
 @pytest.mark.parametrize("path", resources)
-def test_timetable_list(path, url_root_localhost_2016, url_root_candle, url_root_localhost):
-    """All teachers, rooms and student-groups must have same timetable-list (#rozvrhList in the DOM)."""
+def test_timetable_list(
+    path, url_root_localhost_2016, url_root_candle, url_root_localhost
+):
+    """
+    All teachers, rooms and student-groups must have same timetable-list
+    (#rozvrhList in the DOM).
+    """
 
-    # get links for each timetable from new Candle's list (list of teachers, rooms or student-groups)
-    a_tags_new = get_list_of_elements(url=url_root_localhost_2016 + path, selector="#obsah_in li > a")
+    # get links for each timetable from new Candle's list (list of teachers,
+    # rooms or student-groups)
+    a_tags_new = get_list_of_elements(
+        url=url_root_localhost_2016 + path, selector="#obsah_in li > a"
+    )
 
     # for each link:
     for a in a_tags_new:
-        relative_url = a['href']
-        #print(url_root_localhost + relative_url)
+        relative_url = a["href"]
+        # print(url_root_localhost + relative_url)
 
         # get timetable-list's row:
-        tr_elements1 = get_list_of_elements(url=url_root_localhost + relative_url, selector="#rozvrhList > tr")
-        tr_elements2 = get_list_of_elements(url=url_root_candle + relative_url, selector="#rozvrhList > tr")
+        tr_elements1 = get_list_of_elements(
+            url=url_root_localhost + relative_url, selector="#rozvrhList > tr"
+        )
+        tr_elements2 = get_list_of_elements(
+            url=url_root_candle + relative_url, selector="#rozvrhList > tr"
+        )
 
-        #Tables must be sorted, otherwise we will get different results:
-        assert get_sorted_table_rows(tr_elements1) == get_sorted_table_rows(tr_elements2)
+        # Tables must be sorted, otherwise we will get different results:
+        assert get_sorted_table_rows(tr_elements1) == get_sorted_table_rows(
+            tr_elements2
+        )
 
 
 def get_sorted_table_rows(tr_list):
@@ -40,8 +52,8 @@ def get_sorted_table_rows(tr_list):
             if isinstance(td, NavigableString):
                 continue
             counter += 1
-            # We need to skip the list of teachers - they are not sorted in the old Candle,
-            #   so we can't test them with 1:1 method:
+            # We need to skip the list of teachers - they are not sorted in the old
+            # Candle, so we can't test them with 1:1 method:
             if counter == 8:
                 continue
             lst1.append(td.text.strip())
