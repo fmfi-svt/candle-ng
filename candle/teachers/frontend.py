@@ -1,29 +1,23 @@
-'''
-Project: Candle (New Generation): Candle rewrite from PHP to Python.
-Author: Daniel Grohol, FMFI UK
-'''
-
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, request
 
 from typing import Dict
-from candle.models import Teacher
+from candle.teachers.models import Teacher
 from candle.entities.helpers import string_starts_with_ch
 import unidecode
 
+from candle.teachers.search import search_teachers
 from candle.timetable.blueprints.readonly import register_timetable_routes
 
-teacher = Blueprint('teacher',
-                    __name__,
-                    template_folder='templates', url_prefix='/ucitelia')
+teachers = Blueprint('teachers', __name__, template_folder='templates', url_prefix='/teachers')
 
 
-@teacher.route('')
-def list_teachers():
+@teachers.route('/')
+def listing():
     """Show all teachers in the list."""
-    teachers_list = Teacher.query.order_by(Teacher.family_name).all()
+    teachers_list = search_teachers(request.args.get("q"))
     teachers_dict = get_teachers_sorted_by_family_name(teachers_list)
     title = "Rozvrhy učiteľov"
-    return render_template('teacher/list_teachers.html', teachers_dict=teachers_dict, title=title,
+    return render_template('teachers/listing.html', teachers_dict=teachers_dict, title=title,
                            web_header=title)
 
 
@@ -31,7 +25,7 @@ def get_teacher(slug: str) -> Teacher:
     return Teacher.query.filter((Teacher.slug == slug) | (Teacher.login == slug)).first_or_404()
 
 
-register_timetable_routes(teacher, get_teacher)
+register_timetable_routes(teachers, get_teacher)
 
 
 def get_teachers_sorted_by_family_name(teachers) -> Dict:
