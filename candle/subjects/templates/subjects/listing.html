@@ -4,7 +4,7 @@
     {{ super() }}
     <ul>
         {% for subject in subjects -%}
-            <li><a href="{{ url_for('subject.show_timetable', slug=subject.short_code) }}">{{ subject.short_code }} - {{ subject.name }}</a></li>
+            <li><a href="{{ url_for('subjects.show_timetable', slug=subject.short_code) }}">{{ subject.short_code }} - {{ subject.name }}</a></li>
         {%-  endfor %}
     </ul>
 {% endblock %}

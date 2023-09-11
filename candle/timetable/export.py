@@ -8,7 +8,8 @@ from zoneinfo import ZoneInfo
 from flask import make_response, abort, current_app
 from icalendar import Calendar, Event
 
-from candle.models import Subject, Lesson
+from candle.models import Lesson
+from candle.subjects.models import Subject
 from candle.timetable.layout import Layout
 
 
@@ -39,7 +40,7 @@ def _to_csv(layout: Layout):
     for lesson in layout.get_lessons():
         w.writerow([
             lesson.day_abbreviated, lesson.start_formatted, lesson.end_formatted, lesson.room.name,
-            lesson.type, lesson.subject.short_code, lesson.subject.name,
+            lesson.type, lesson.subjects.short_code, lesson.subjects.name,
             lesson.get_teachers_formatted(), lesson.get_note(),
         ])
 
@@ -64,7 +65,7 @@ def _to_list(layout: Layout):
     subjects = set()
 
     for lesson in layout.get_lessons():
-        subjects.add(lesson.subject.short_code)
+        subjects.add(lesson.subjects.short_code)
 
     response = make_response("\n".join(subjects))
     response.mimetype = "text/plain"
@@ -76,8 +77,8 @@ def _to_txt(layout: Layout):
 
     for lesson in layout.get_lessons():
         row = [lesson.day_abbreviated, f"{lesson.start_formatted} - {lesson.end_formatted}",
-               f"({lesson.rowspan} v.hod.)", lesson.room.name, lesson.type.name, lesson.subject.short_code,
-               lesson.subject.name, lesson.get_note(), lesson.get_teachers_formatted()]
+               f"({lesson.rowspan} v.hod.)", lesson.room.name, lesson.type.name, lesson.subjects.short_code,
+               lesson.subjects.name, lesson.get_note(), lesson.get_teachers_formatted()]
         rows.append("\t".join(row))
 
     response = make_response("\n".join(rows))
@@ -106,7 +107,7 @@ def _to_ics(layout: Layout):
         event.add("dtstamp", start)
         event.add("dtstart", start)
         event.add("dtend", end)
-        event.add("summary", lesson.subject.name)
+        event.add("summary", lesson.subjects.name)
         event.add("location", lesson.room.name)
 
         description = [lesson.type.name]
@@ -134,8 +135,8 @@ def _to_xml(layout: Layout):
         elem = ElementTree.SubElement(lesson_elem, "room")
         elem.text = lesson.room.name
 
-        elem = ElementTree.SubElement(lesson_elem, "subject", shortcode=lesson.subject.short_code)
-        elem.text = lesson.subject.name
+        elem = ElementTree.SubElement(lesson_elem, "subject", shortcode=lesson.subjects.short_code)
+        elem.text = lesson.subjects.name
 
         elem = ElementTree.SubElement(lesson_elem, "day")
         elem.text = lesson.day_abbreviated
