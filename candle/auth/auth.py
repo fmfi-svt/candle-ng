@@ -16,12 +16,12 @@ auth = Blueprint('auth', __name__)
 def require_remote_user(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        if current_app.config['ENV'] == 'production':
+        if current_app.config['DEBUG']:
+            request.environ.setdefault("REMOTE_USER", "svttest")
+        else:
             if request.environ.get('REMOTE_USER') is None:
                 flash('User not logged in', 'error')
                 return redirect(url_for('common.home'))
-        else:
-            request.environ.setdefault("REMOTE_USER", "svttest")
         return func(*args, **kwargs)
     return wrapper
 
