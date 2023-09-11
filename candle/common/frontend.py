@@ -1,22 +1,15 @@
-'''
-Project: Candle (New Generation): Candle rewrite from PHP to Python.
-Author: Daniel Grohol, FMFI UK
-'''
-
-from flask import Blueprint, redirect, url_for, render_template
+from flask import Blueprint, render_template, redirect, url_for
 from flask_login import current_user
 
 from candle import db
 from candle.models import UserTimetable
 
-main = Blueprint('main',
-                __name__,
-                template_folder='templates',
+common = Blueprint('common', __name__, template_folder="templates",
                 static_folder='static',
-                static_url_path='/main/static'
-                )
+                static_url_path='/common/static')
 
-@main.route('/')
+
+@common.route('/')
 def home():
     if current_user.is_authenticated:
         my_timetables = current_user.timetables

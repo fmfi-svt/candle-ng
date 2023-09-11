@@ -19,7 +19,7 @@ def require_remote_user(func):
         if current_app.config['ENV'] == 'production':
             if request.environ.get('REMOTE_USER') is None:
                 flash('User not logged in', 'error')
-                return redirect(url_for('main.home'))
+                return redirect(url_for('common.home'))
         else:
             request.environ.setdefault("REMOTE_USER", "svttest")
         return func(*args, **kwargs)
@@ -39,11 +39,11 @@ def login():
         # flash('Prihlasenie bolo neuspesne.')
 
     login_user(user, remember=True)
-    return redirect(url_for("main.home"))
+    return redirect(url_for("common.home"))
 
 
 @auth.route('/odhlasit')
 @require_remote_user
 def logout():
     logout_user()
-    return redirect(url_for('main.home'))
+    return redirect(url_for('common.home'))
