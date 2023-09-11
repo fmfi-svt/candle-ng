@@ -8,3 +8,6 @@ def search_groups(query: str|None) -> Query:
         groups = groups.filter(StudentGroup.name.ilike(f"%{query}%"))
     return groups
 
+
+def get_group(slug: str) -> StudentGroup:
+    return StudentGroup.query.filter((StudentGroup.id_==slug) | (StudentGroup.name==slug)).first_or_404()

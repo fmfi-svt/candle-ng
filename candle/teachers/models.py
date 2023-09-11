@@ -46,3 +46,13 @@ class Teacher(SchoolTimetable):
     @property
     def timetable_short_name(self) -> str:
         return self.short_name
+
+    def to_dict(self):
+        return {
+            "id": self.id_,
+            "given_name": self.given_name,
+            "family_name": self.family_name,
+            "department": self.katedra,
+            "login": self.login,
+            "slug": self.slug,
+        }

@@ -2,8 +2,7 @@
 from typing import Dict
 from flask import render_template, Blueprint, request
 
-from candle.groups.models import StudentGroup
-from candle.groups.search import search_groups
+from candle.groups.search import search_groups, get_group
 from candle.timetable.blueprints.readonly import register_timetable_routes
 
 groups = Blueprint('groups', __name__, template_folder='templates', url_prefix='/groups')
@@ -17,10 +16,6 @@ def listing():
     title = "Rozvrhy krúžkov"
     return render_template('groups/listing.html', student_groups_dict=student_groups_dict,
                            title=title, web_header=title)
-
-
-def get_group(group_url_id: str) -> StudentGroup:
-    return StudentGroup.query.filter((StudentGroup.id_==group_url_id) | (StudentGroup.name==group_url_id)).first_or_404()
 
 
 register_timetable_routes(groups, get_group)

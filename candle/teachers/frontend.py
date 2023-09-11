@@ -1,11 +1,10 @@
 from flask import Blueprint, render_template, request
 
 from typing import Dict
-from candle.teachers.models import Teacher
 from candle.entities.helpers import string_starts_with_ch
 import unidecode
 
-from candle.teachers.search import search_teachers
+from candle.teachers.search import search_teachers, get_teacher
 from candle.timetable.blueprints.readonly import register_timetable_routes
 
 teachers = Blueprint('teachers', __name__, template_folder='templates', url_prefix='/teachers')
@@ -19,10 +18,6 @@ def listing():
     title = "Rozvrhy učiteľov"
     return render_template('teachers/listing.html', teachers_dict=teachers_dict, title=title,
                            web_header=title)
-
-
-def get_teacher(slug: str) -> Teacher:
-    return Teacher.query.filter((Teacher.slug == slug) | (Teacher.login == slug)).first_or_404()
 
 
 register_timetable_routes(teachers, get_teacher)

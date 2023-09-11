@@ -33,3 +33,7 @@ def get_rooms_sorted_by_dashes(rooms: Iterable[Room]) -> dict[str, list[Room]]:
             d[prefix] = []
         d[prefix].append(room)
     return d
+
+
+def get_room(slug: str) -> Room:
+    return Room.query.filter((Room.id_ == slug) | (Room.name == slug)).first_or_404()

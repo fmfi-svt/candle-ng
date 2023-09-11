@@ -28,6 +28,13 @@ class Room(SchoolTimetable):
     def timetable_name(self) -> str:
         return self.name
 
+    def to_dict(self):
+        return {
+            "id": self.id_,
+            "name": self.name,
+            "capacity": self.capacity,
+        }
+
 
 class RoomType(db.Model):
     id_ = db.Column('id', db.Integer, primary_key=True)

@@ -20,8 +20,10 @@ class Subject(SchoolTimetable):
         Returns the Subject as dict for JSON rendering.
         """
         return {
+            "id": self.id_,
             "name": self.name,
             "shortcode": self.short_code,
+            "code": self.code,
         }
 
     @property

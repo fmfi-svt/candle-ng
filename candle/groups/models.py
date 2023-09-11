@@ -18,3 +18,9 @@ class StudentGroup(SchoolTimetable):
     @property
     def timetable_short_name(self) -> str:
         return self.name
+
+    def to_dict(self):
+        return {
+            "id": self.id_,
+            "name": self.name,
+        }
