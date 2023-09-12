@@ -1,12 +1,12 @@
 import csv
 import io
 import json
-from datetime import datetime, timedelta, date, time
+from datetime import date, datetime, time, timedelta
 from xml.etree import ElementTree
-from zoneinfo import ZoneInfo
 
-from flask import make_response, abort, current_app
+from flask import abort, current_app, make_response
 from icalendar import Calendar, Event
+from zoneinfo import ZoneInfo
 
 from candle.models import Lesson
 from candle.subjects.models import Subject
@@ -14,7 +14,9 @@ from candle.timetable.layout import Layout
 
 
 def export_timetable_as(format, lessons):
-    lessons = lessons.join(Subject).order_by(Lesson.day, Lesson.start, Subject.name).all()
+    lessons = (
+        lessons.join(Subject).order_by(Lesson.day, Lesson.start, Subject.name).all()
+    )
     layout = Layout(lessons)
 
     if format == "csv":
@@ -38,15 +40,23 @@ def _to_csv(layout: Layout):
     w.writerow(layout.get_list_headers())
 
     for lesson in layout.get_lessons():
-        w.writerow([
-            lesson.day_abbreviated, lesson.start_formatted, lesson.end_formatted, lesson.room.name,
-            lesson.type, lesson.subjects.short_code, lesson.subjects.name,
-            lesson.get_teachers_formatted(), lesson.get_note(),
-        ])
+        w.writerow(
+            [
+                lesson.day_abbreviated,
+                lesson.start_formatted,
+                lesson.end_formatted,
+                lesson.room.name,
+                lesson.type,
+                lesson.subjects.short_code,
+                lesson.subjects.name,
+                lesson.get_teachers_formatted(),
+                lesson.get_note(),
+            ]
+        )
 
     buffer.seek(0)
     response = make_response(buffer)
-    response.mimetype = 'text/csv'
+    response.mimetype = "text/csv"
     return response
 
 
@@ -57,7 +67,7 @@ def _to_json(layout: Layout):
         data.append(lesson.to_dict())
 
     response = make_response(json.dumps(data))
-    response.mimetype = 'application/json'
+    response.mimetype = "application/json"
     return response
 
 
@@ -76,9 +86,17 @@ def _to_txt(layout: Layout):
     rows = []
 
     for lesson in layout.get_lessons():
-        row = [lesson.day_abbreviated, f"{lesson.start_formatted} - {lesson.end_formatted}",
-               f"({lesson.rowspan} v.hod.)", lesson.room.name, lesson.type.name, lesson.subjects.short_code,
-               lesson.subjects.name, lesson.get_note(), lesson.get_teachers_formatted()]
+        row = [
+            lesson.day_abbreviated,
+            f"{lesson.start_formatted} - {lesson.end_formatted}",
+            f"({lesson.rowspan} v.hod.)",
+            lesson.room.name,
+            lesson.type.name,
+            lesson.subjects.short_code,
+            lesson.subjects.name,
+            lesson.get_note(),
+            lesson.get_teachers_formatted(),
+        ]
         rows.append("\t".join(row))
 
     response = make_response("\n".join(rows))
@@ -88,8 +106,8 @@ def _to_txt(layout: Layout):
 
 def _to_ics(layout: Layout):
     cal = Calendar()
-    cal.add('prodid', '-//Candle-NG//NONSGML candle.fmph.uniba.sk//')
-    cal.add('version', '2.0')
+    cal.add("prodid", "-//Candle-NG//NONSGML candle.fmph.uniba.sk//")
+    cal.add("version", "2.0")
 
     tz = ZoneInfo("Europe/Bratislava")
     semester_start: date = current_app.config["CANDLE_SEMESTER_START"]
@@ -100,7 +118,9 @@ def _to_ics(layout: Layout):
         event = Event()
         event.add("uid", f"{semester}-{lesson.id_}@candle.fmph.uniba.sk")
 
-        day = semester_start + timedelta(days=(lesson.day - semester_start.weekday()) % 7)
+        day = semester_start + timedelta(
+            days=(lesson.day - semester_start.weekday()) % 7
+        )
         start = datetime.combine(day, time(lesson.start // 60, lesson.start % 60), tz)
         end = datetime.combine(day, time(lesson.end // 60, lesson.end % 60), tz)
 
@@ -135,7 +155,9 @@ def _to_xml(layout: Layout):
         elem = ElementTree.SubElement(lesson_elem, "room")
         elem.text = lesson.room.name
 
-        elem = ElementTree.SubElement(lesson_elem, "subject", shortcode=lesson.subjects.short_code)
+        elem = ElementTree.SubElement(
+            lesson_elem, "subject", shortcode=lesson.subjects.short_code
+        )
         elem.text = lesson.subjects.name
 
         elem = ElementTree.SubElement(lesson_elem, "day")

@@ -3,12 +3,13 @@ from candle.models import SchoolTimetable
 
 
 class Room(SchoolTimetable):
-    id_ = db.Column('id', db.Integer, primary_key=True)
-    name = db.Column('name', db.String(30), nullable=False)
-    room_type_id = db.Column(db.Integer, db.ForeignKey('room_type.id'), nullable=False)
+    id_ = db.Column("id", db.Integer, primary_key=True)
+    name = db.Column("name", db.String(30), nullable=False)
+    room_type_id = db.Column(db.Integer, db.ForeignKey("room_type.id"), nullable=False)
     capacity = db.Column(db.Integer, nullable=False)
-    lessons = db.relationship('Lesson', backref='room',
-                              lazy='dynamic')  # 'lazy dynamic' allows us to work with lessons attribute like with query ( we can run order_by, etc)
+    lessons = db.relationship("Lesson", backref="room", lazy="dynamic")
+    # 'lazy dynamic' allows us to work with lessons attribute
+    # like with a query (we can run order_by, etc...)
 
     def __str__(self):
         return self.name
@@ -16,13 +17,13 @@ class Room(SchoolTimetable):
     @property
     def prefix(self):
         # xMieRez is a special case:
-        if 'xMieRez' in self.name:
+        if "xMieRez" in self.name:
             return "Ostatné"
 
-        first_dash_position = self.name.find('-')
+        first_dash_position = self.name.find("-")
         if first_dash_position == -1:  # name doesn't contain '-'
             return self.name
-        return self.name[0 : first_dash_position]
+        return self.name[0:first_dash_position]
 
     def __repr__(self):
         return "<Room %r>" % self.name
@@ -40,6 +41,6 @@ class Room(SchoolTimetable):
 
 
 class RoomType(db.Model):
-    id_ = db.Column('id', db.Integer, primary_key=True)
+    id_ = db.Column("id", db.Integer, primary_key=True)
     name = db.Column(db.String(30), nullable=False)
     code = db.Column(db.String(1), nullable=False)

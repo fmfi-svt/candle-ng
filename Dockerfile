@@ -1,4 +1,4 @@
-FROM python:3.10-slim-bullseye
+FROM python:3.11-slim-bullseye
 
 WORKDIR /app
 RUN useradd --create-home appuser
@@ -15,9 +15,11 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 
 USER appuser
 
-COPY ./requirements ./requirements
-RUN pip install -r requirements/requirements.txt
+RUN pip install poetry
+COPY poetry.lock .
+COPY pyproject.toml .
+RUN poetry install
 
 COPY ./candle ./candle
 
-CMD ["flask", "run", "--host=0.0.0.0"]
+CMD ["poetry", "run", "flask", "run", "--host=0.0.0.0"]

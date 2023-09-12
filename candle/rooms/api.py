@@ -1,8 +1,8 @@
 from flask import Blueprint, request
 
-from candle.rooms.search import search_rooms, get_room
+from candle.rooms.search import get_room, search_rooms
 
-rooms = Blueprint('rooms', __name__, url_prefix='/rooms')
+rooms = Blueprint("rooms", __name__, url_prefix="/rooms")
 
 
 @rooms.route("/")

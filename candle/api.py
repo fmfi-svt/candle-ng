@@ -9,12 +9,12 @@ def get_error_handler(code, message):
 
 
 def create_api():
-    api = Blueprint('api', __name__, url_prefix="/api")
+    api = Blueprint("api", __name__, url_prefix="/api")
 
-    from candle.teachers.api import teachers
-    from candle.subjects.api import subjects
-    from candle.rooms.api import rooms
     from candle.groups.api import groups
+    from candle.rooms.api import rooms
+    from candle.subjects.api import subjects
+    from candle.teachers.api import teachers
 
     api.register_blueprint(teachers)
     api.register_blueprint(subjects)
@@ -26,4 +26,3 @@ def create_api():
     api.register_error_handler(500, get_error_handler(500, "Server error."))
 
     return api
-
